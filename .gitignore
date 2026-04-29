@@ -26,3 +26,9 @@ frontend/.env*.local
 *.ipr
 .DS_Store
 Thumbs.db
+
+# --- Logs and Temp Files ---
+*.log
+*.txt
+engine/*.txt
+engine/*.log
