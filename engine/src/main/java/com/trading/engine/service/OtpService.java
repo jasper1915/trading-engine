@@ -36,10 +36,10 @@ public class OtpService {
     @Value("${aws.sender-email}")
     private String senderEmail;
 
-    @Value("${msg91.auth-key}")
+    @Value("${msg91.auth-key:}")
     private String msg91AuthKey;
 
-    @Value("${msg91.template-id}")
+    @Value("${msg91.template-id:}")
     private String msg91TemplateId;
 
     @Value("${twilio.account-sid:}")
@@ -49,7 +49,7 @@ public class OtpService {
     private String twilioToken;
 
     @Value("${twilio.phone-number:}")
-    private String twilioFrom;
+    private String twilioPhone;
 
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     private final RestTemplate restTemplate = new RestTemplate();
