@@ -28,7 +28,10 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // ✅ ADD THIS
         .cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedOriginPatterns(List.of("http://localhost:*")); // ✅ Allow all localhost ports
+            configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "https://*.vercel.app"
+            )); 
             configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
             configuration.setAllowCredentials(true);
