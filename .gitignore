@@ -1,0 +1,28 @@
+# --- Backend (Java/Spring Boot) ---
+engine/target/
+engine/.mvn/wrapper/maven-wrapper.jar
+engine/*.class
+engine/*.log
+engine/*.gz
+engine/.factorypath
+engine/.project
+engine/.settings/
+engine/.classpath
+engine/bin/
+
+# --- Frontend (React/Vite) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.DS_Store
+frontend/*.local
+frontend/.env
+frontend/.env*.local
+
+# --- IDE & System ---
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+Thumbs.db

@@ -1,0 +1,5 @@
+====== DEBUG OTP (otp.txt) ======
+Action: Authentication for 9199270322
+Identifier: 9199270322
+OTP is: 721482
+=================================

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OrderBook Live</title>
+
+    <!-- SockJS + STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+        .buy { color: green; }
+        .sell { color: red; }
+    </style>
+</head>
+
+<body>
+
+<h2>📊 OrderBook Live (BTC/USD)</h2>
+
+<h3>🟢 Bids (BUY)</h3>
+<table id="bids"></table>
+
+<h3>🔴 Asks (SELL)</h3>
+<table id="asks"></table>
+
+<script>
+console.log("NEW UI LOADED ✅");
+
+// 🔌 Connect WebSocket
+const socket = new SockJS('http://localhost:8080/ws');
+const stompClient = Stomp.over(socket);
+
+// 🔄 Update table
+function updateTable(id, data, className) {
+    let table = document.getElementById(id);
+    table.innerHTML = "";
+
+    for (let price in data) {
+        let row = document.createElement("tr");
+
+        let priceCell = document.createElement("td");
+        let qtyCell = document.createElement("td");
+
+        priceCell.innerText = price;
+        qtyCell.innerText = data[price];
+
+        row.appendChild(priceCell);
+        row.appendChild(qtyCell);
+
+        row.className = className;
+
+        table.appendChild(row);
+    }
+}
+
+// 🔗 Connect + Subscribe
+stompClient.connect({}, function(frame) {
+    console.log("Connected: " + frame);
+
+    stompClient.subscribe('/topic/orderbook/BTC-USD', function(message) {
+        let data = JSON.parse(message.body);
+
+        console.log("LIVE DATA:", data);
+
+        updateTable("bids", data.bids, "buy");
+        updateTable("asks", data.asks, "sell");
+    });
+});
+</script>
+
+</body>
+</html>
