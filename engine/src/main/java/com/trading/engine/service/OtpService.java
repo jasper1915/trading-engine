@@ -49,7 +49,7 @@ public class OtpService {
     private String twilioToken;
 
     @Value("${twilio.phone-number:}")
-    private String twilioPhone;
+    private String twilioFrom;
 
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     private final RestTemplate restTemplate = new RestTemplate();
