@@ -15,10 +15,10 @@ import java.util.*;
 @Service
 public class GeminiService {
 
-    @Value("${gemini.api-key}")
+    @Value("${gemini.api-key:}")
     private String apiKey;
 
-    @Value("${gemini.model}")
+    @Value("${gemini.model:gemini-1.5-flash}")
     private String model;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -120,7 +120,8 @@ public class GeminiService {
             return "AI Error: HTTP " + response.getStatusCode();
         } catch (Exception e) {
             System.err.println("❌ Gemini API Error: " + e.getMessage());
-            return "Error talking to AI. Please try again later.";
+            e.printStackTrace();
+            return "AI Error: " + e.getMessage();
         }
     }
 }
