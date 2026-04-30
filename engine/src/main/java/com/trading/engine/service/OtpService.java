@@ -168,24 +168,28 @@ public class OtpService {
                 else if (fast2smsApiKey != null && !fast2smsApiKey.isEmpty()) {
                     String sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
                     // If it's 12 digits starting with 91, strip the 91
-                    if (sanitizedMobile.length() == 12 && sanitizedMobile.startsWith("91")) {
-                        sanitizedMobile = sanitizedMobile.substring(2);
-                    }
-                    // If it's 10 digits starting with 91, it's likely a mistake or a real number starting with 91.
-                    // We will keep it but log it.
-
-                    // Using Fast2SMS 'otp' route (now that account is funded)
-                    sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
                     if (sanitizedMobile.length() > 10 && sanitizedMobile.startsWith("91")) {
                         sanitizedMobile = sanitizedMobile.substring(2);
                     }
                     
-                    String url = String.format(
-                        "https://www.fast2sms.com/dev/bulkV2?authorization=%s&variables_values=%s&route=otp&numbers=%s",
-                        fast2smsApiKey, otp, sanitizedMobile);
+                    String message = "Your Stockify Verification Code is: " + otp;
                     
-                    System.out.println("📡 Fast2SMS (OTP Route) URL: " + url);
-                    String response = restTemplate.getForObject(url, String.class);
+                    java.util.Map<String, String> body = new java.util.HashMap<>();
+                    body.put("route", "v3");
+                    body.put("sender_id", "FT2SMS");
+                    body.put("message", message);
+                    body.put("language", "english");
+                    body.put("flash", "0");
+                    body.put("numbers", sanitizedMobile);
+
+                    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                    headers.set("authorization", fast2smsApiKey);
+                    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+                    org.springframework.http.HttpEntity<java.util.Map<String, String>> request = new org.springframework.http.HttpEntity<>(body, headers);
+                    
+                    System.out.println("📡 Sending Fast2SMS POST to v3 route...");
+                    String response = restTemplate.postForObject("https://www.fast2sms.com/dev/bulkV2", request, String.class);
                     System.out.println("✅ Fast2SMS Response: " + response);
                     System.out.println("✅ REAL Fast2SMS OTP Sent to " + sanitizedMobile);
                 }
