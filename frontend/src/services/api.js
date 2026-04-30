@@ -4,6 +4,8 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
 })
 
+console.log('📡 Connecting to Backend at:', api.defaults.baseURL);
+
 // Attach token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
