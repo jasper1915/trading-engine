@@ -36,6 +36,15 @@ public class OtpService {
     @Value("${aws.sender-email}")
     private String senderEmail;
 
+    @Value("${brevo.api-key:}")
+    private String brevoApiKey;
+
+    @Value("${brevo.sender-name:Stockify}")
+    private String brevoSenderName;
+
+    @Value("${brevo.sender-email:}")
+    private String brevoSenderEmail;
+
     @Value("${msg91.auth-key:}")
     private String msg91AuthKey;
 
@@ -85,25 +94,34 @@ public class OtpService {
 
         String textMessage = "Your FortuneX Verification Code is: " + otp;
 
-        // Attempt to send REAL Email via AWS SES
+        // Attempt to send REAL Email via Brevo
         if (identifier.contains("@")) {
             try {
-                if (sesClient == null) {
-                    System.out.println("⚠️ AWS SES not configured. FALLBACK OTP: " + otp);
+                if (brevoApiKey != null && !brevoApiKey.isEmpty() && !brevoApiKey.contains("your-brevo")) {
+                    // Prepare Brevo API Request
+                    java.util.Map<String, Object> sender = java.util.Map.of("name", brevoSenderName, "email", brevoSenderEmail);
+                    java.util.List<java.util.Map<String, String>> to = java.util.List.of(java.util.Map.of("email", identifier));
+                    
+                    java.util.Map<String, Object> body = java.util.Map.of(
+                        "sender", sender,
+                        "to", to,
+                        "subject", "Stockify OTP Verification",
+                        "textContent", textMessage
+                    );
+
+                    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                    headers.set("api-key", brevoApiKey);
+                    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+                    org.springframework.http.HttpEntity<java.util.Map<String, Object>> request = new org.springframework.http.HttpEntity<>(body, headers);
+                    
+                    restTemplate.postForObject("https://api.brevo.com/v3/smtp/email", request, String.class);
+                    System.out.println("✅ REAL Brevo Email Sent to " + identifier);
                 } else {
-                    SendEmailRequest emailRequest = SendEmailRequest.builder()
-                            .destination(Destination.builder().toAddresses(identifier).build())
-                            .message(software.amazon.awssdk.services.ses.model.Message.builder()
-                                    .subject(Content.builder().data("FortuneX OTP Verification").build())
-                                    .body(Body.builder().text(Content.builder().data(textMessage).build()).build())
-                                    .build())
-                            .source(senderEmail)
-                            .build();
-                    sesClient.sendEmail(emailRequest);
-                    System.out.println("✅ REAL AWS SES Email Sent to " + identifier);
+                    System.out.println("⚠️ Brevo not configured. Fallback OTP: " + otp);
                 }
             } catch (Exception e) {
-                String errorMsg = "❌ AWS SES Error: " + e.getMessage();
+                String errorMsg = "❌ Brevo Error: " + e.getMessage();
                 System.err.println(errorMsg);
                 logError(errorMsg);
             }
