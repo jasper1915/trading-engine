@@ -174,13 +174,17 @@ public class OtpService {
                     // If it's 10 digits starting with 91, it's likely a mistake or a real number starting with 91.
                     // We will keep it but log it.
 
-                    // Using Fast2SMS 'v3' route which is often more reliable
-                    String message = "Your Stockify Verification Code is: " + otp;
-                    String url = String.format(
-                        "https://www.fast2sms.com/dev/bulkV2?authorization=%s&route=v3&sender_id=FT2SMS&message=%s&language=english&flash=0&numbers=%s",
-                        fast2smsApiKey, java.net.URLEncoder.encode(message, "UTF-8"), sanitizedMobile);
+                    // Using Fast2SMS 'otp' route (now that account is funded)
+                    String sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
+                    if (sanitizedMobile.length() > 10 && sanitizedMobile.startsWith("91")) {
+                        sanitizedMobile = sanitizedMobile.substring(2);
+                    }
                     
-                    System.out.println("📡 Fast2SMS Request URL: " + url);
+                    String url = String.format(
+                        "https://www.fast2sms.com/dev/bulkV2?authorization=%s&variables_values=%s&route=otp&numbers=%s",
+                        fast2smsApiKey, otp, sanitizedMobile);
+                    
+                    System.out.println("📡 Fast2SMS (OTP Route) URL: " + url);
                     String response = restTemplate.getForObject(url, String.class);
                     System.out.println("✅ Fast2SMS Response: " + response);
                     System.out.println("✅ REAL Fast2SMS OTP Sent to " + sanitizedMobile);
