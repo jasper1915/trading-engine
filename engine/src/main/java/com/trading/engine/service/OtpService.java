@@ -175,7 +175,7 @@ public class OtpService {
                     // We will keep it but log it.
 
                     // Using Fast2SMS 'otp' route (now that account is funded)
-                    String sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
+                    sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
                     if (sanitizedMobile.length() > 10 && sanitizedMobile.startsWith("91")) {
                         sanitizedMobile = sanitizedMobile.substring(2);
                     }
