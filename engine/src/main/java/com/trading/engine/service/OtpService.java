@@ -176,7 +176,9 @@ public class OtpService {
                         "https://www.fast2sms.com/dev/bulkV2?authorization=%s&variables_values=%s&route=otp&numbers=%s",
                         fast2smsApiKey, otp, sanitizedMobile);
                     
-                    restTemplate.getForObject(url, String.class);
+                    System.out.println("📡 Fast2SMS Request URL: " + url);
+                    String response = restTemplate.getForObject(url, String.class);
+                    System.out.println("✅ Fast2SMS Response: " + response);
                     System.out.println("✅ REAL Fast2SMS OTP Sent to " + sanitizedMobile);
                 }
             } catch (Exception e) {
