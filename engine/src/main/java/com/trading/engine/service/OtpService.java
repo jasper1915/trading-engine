@@ -51,6 +51,9 @@ public class OtpService {
     @Value("${msg91.template-id:}")
     private String msg91TemplateId;
 
+    @Value("${fast2sms.api-key:}")
+    private String fast2smsApiKey;
+
     @Value("${twilio.account-sid:}")
     private String twilioSid;
 
@@ -158,9 +161,23 @@ public class OtpService {
                     String url = String.format(
                             "https://api.msg91.com/api/v5/otp?template_id=%s&mobile=%s&authkey=%s&otp=%s&country=91",
                             msg91TemplateId, sanitizedMobile, msg91AuthKey, otp);
-                    String response = restTemplate.getForObject(url, String.class);
-                    System.out.println("✅ MSG91 Response: " + response);
+                    restTemplate.getForObject(url, String.class);
                     System.out.println("✅ REAL MSG91 SMS Sent to " + sanitizedMobile);
+                }
+                // Priority 3: Fast2SMS (DLT-Free for India)
+                else if (fast2smsApiKey != null && !fast2smsApiKey.isEmpty()) {
+                    String sanitizedMobile = identifier.replace("+", "").trim();
+                    if (sanitizedMobile.startsWith("91") && sanitizedMobile.length() > 10) {
+                        sanitizedMobile = sanitizedMobile.substring(2);
+                    }
+
+                    // Using Fast2SMS 'Quick SMS' or 'OTP' route
+                    String url = String.format(
+                        "https://www.fast2sms.com/dev/bulkV2?authorization=%s&variables_values=%s&route=otp&numbers=%s",
+                        fast2smsApiKey, otp, sanitizedMobile);
+                    
+                    restTemplate.getForObject(url, String.class);
+                    System.out.println("✅ REAL Fast2SMS OTP Sent to " + sanitizedMobile);
                 }
             } catch (Exception e) {
                 String errorMsg = "❌ SMS Error: " + e.getMessage();
