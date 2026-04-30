@@ -60,14 +60,13 @@ public class OtpService {
     public void init() {
         if (awsAccessKey != null && !awsAccessKey.isEmpty() && !awsAccessKey.contains("your-aws")) {
             StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(awsAccessKey, awsSecretKey)
-            );
+                    AwsBasicCredentials.create(awsAccessKey, awsSecretKey));
             this.sesClient = SesClient.builder()
                     .region(Region.of(awsRegion))
                     .credentialsProvider(credentialsProvider)
                     .build();
         }
-        
+
         if (twilioSid != null && !twilioSid.isEmpty() && !twilioSid.contains("your-twilio")) {
             Twilio.init(twilioSid, twilioToken);
         }
@@ -108,7 +107,7 @@ public class OtpService {
                 System.err.println(errorMsg);
                 logError(errorMsg);
             }
-        } 
+        }
         // Attempt to send REAL SMS via Twilio or MSG91
         else {
             try {
@@ -121,16 +120,15 @@ public class OtpService {
                     } else if (!finalNumber.startsWith("+")) {
                         finalNumber = "+" + finalNumber;
                     }
-                    
+
                     System.out.println("DEBUG: Sending Twilio SMS to: " + finalNumber);
-                    
+
                     Message message = Message.creator(
-                        new PhoneNumber(finalNumber),
-                        new PhoneNumber(twilioFrom),
-                        textMessage
-                    ).create();
+                            new PhoneNumber(finalNumber),
+                            new PhoneNumber(twilioFrom),
+                            textMessage).create();
                     System.out.println("✅ REAL Twilio SMS Sent! SID: " + message.getSid());
-                } 
+                }
                 // Priority 2: MSG91
                 else if (msg91AuthKey != null && !msg91AuthKey.isEmpty()) {
                     String sanitizedMobile = identifier.replace("+", "").trim();
@@ -138,11 +136,10 @@ public class OtpService {
                     if (sanitizedMobile.startsWith("91") && sanitizedMobile.length() > 10) {
                         sanitizedMobile = sanitizedMobile.substring(2);
                     }
-                    
+
                     String url = String.format(
-                        "https://api.msg91.com/api/v5/otp?template_id=%s&mobile=%s&authkey=%s&otp=%s&country=91",
-                        msg91TemplateId, sanitizedMobile, msg91AuthKey, otp
-                    );
+                            "https://api.msg91.com/api/v5/otp?template_id=%s&mobile=%s&authkey=%s&otp=%s&country=91",
+                            msg91TemplateId, sanitizedMobile, msg91AuthKey, otp);
                     String response = restTemplate.getForObject(url, String.class);
                     System.out.println("✅ MSG91 Response: " + response);
                     System.out.println("✅ REAL MSG91 SMS Sent to " + sanitizedMobile);
@@ -158,7 +155,8 @@ public class OtpService {
         try {
             String msg = java.time.LocalDateTime.now() + " - Identifier: " + identifier + " OTP: " + otp + "\n";
             Files.write(Paths.get("otp.txt"), msg.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     public boolean verifyOtp(String identifier, String otp) {
@@ -169,7 +167,9 @@ public class OtpService {
     private void logError(String msg) {
         try {
             String logMsg = new java.util.Date() + ": " + msg + "\n";
-            Files.write(Paths.get("otp_errors.log"), logMsg.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (Exception ignored) {}
+            Files.write(Paths.get("otp_errors.log"), logMsg.getBytes(), StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND);
+        } catch (Exception ignored) {
+        }
     }
 }

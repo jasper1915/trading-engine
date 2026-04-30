@@ -47,7 +47,8 @@ const Login = ({ onLogin }) => {
       }
       onLogin(res.data.token)
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data || 'Login failed. Please try again.')
+      const msg = err.response?.data?.message || err.response?.data || (err.request ? 'Server is unreachable. Please check your connection or backend status.' : 'Login failed. Please try again.');
+      setError(msg)
     } finally {
       setLoading(false)
     }

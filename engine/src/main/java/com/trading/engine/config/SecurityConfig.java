@@ -30,7 +30,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             CorsConfiguration configuration = new CorsConfiguration();
             configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
-                "https://*.vercel.app"
+                "https://*.vercel.app",
+                "https://stockify.best",
+                "https://www.stockify.best"
             )); 
             configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
