@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
 import { TrendingUp, User as UserIcon, Lock, Loader2, Key } from 'lucide-react'
@@ -15,6 +15,19 @@ const Login = ({ onLogin }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [timer, setTimer] = useState(0)
+
+  useEffect(() => {
+    let interval = null
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1)
+      }, 1000)
+    } else {
+      clearInterval(interval)
+    }
+    return () => clearInterval(interval)
+  }, [timer])
 
   const handleSendOtp = async (e) => {
     e?.preventDefault()
@@ -24,6 +37,7 @@ const Login = ({ onLogin }) => {
     try {
       await api.post('/auth/send-otp', { identifier })
       setOtpSent(true)
+      setTimer(30)
       setSuccess(`OTP sent successfully to ${identifier}!`)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP')
@@ -65,6 +79,7 @@ const Login = ({ onLogin }) => {
       setOtpSent(false)
       setOtp('')
       setPassword('')
+      setTimer(0)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to reset password')
     } finally {
@@ -121,10 +136,20 @@ const Login = ({ onLogin }) => {
           )}
 
           {(mode === 'otp' || mode === 'forgot') && otpSent && (
-            <div style={{ position: 'relative' }}>
-              <Key size={18} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-muted)' }} />
-              <input type="text" placeholder="6-digit OTP" value={otp} onChange={(e) => setOtp(e.target.value)} required style={{ width: '100%', paddingLeft: '40px', height: '48px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff', outline: 'none' }} />
-            </div>
+            <>
+              <div style={{ position: 'relative' }}>
+                <Key size={18} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-muted)' }} />
+                <input type="text" placeholder="6-digit OTP" value={otp} onChange={(e) => setOtp(e.target.value)} required style={{ width: '100%', paddingLeft: '40px', height: '48px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff', outline: 'none' }} />
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-12px' }}>
+                {timer > 0 ? (
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Resend in <b style={{ color: 'var(--brand-primary)' }}>{timer}s</b></span>
+                ) : (
+                  <button type="button" onClick={handleSendOtp} style={{ background: 'none', border: 'none', color: 'var(--brand-primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Resend OTP</button>
+                )}
+              </div>
+            </>
           )}
 
           {mode === 'forgot' && otpSent && (

@@ -17,7 +17,20 @@ const Register = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [timer, setTimer] = useState(0)
   const navigate = useNavigate()
+
+  React.useEffect(() => {
+    let interval = null
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1)
+      }, 1000)
+    } else {
+      clearInterval(interval)
+    }
+    return () => clearInterval(interval)
+  }, [timer])
 
   const handleSendOtp = async (e) => {
     e?.preventDefault()
@@ -31,6 +44,7 @@ const Register = () => {
     try {
       await api.post('/auth/send-otp', { identifier })
       setOtpSent(true)
+      setTimer(30)
       setSuccess(`OTP sent to your ${verifyMethod}!`)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP')
@@ -114,6 +128,14 @@ const Register = () => {
               <div style={{ position: 'relative' }}>
                 <Key size={18} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--brand-primary)' }} />
                 <input type="text" placeholder={`Enter OTP sent to ${verifyMethod}`} value={otp} onChange={(e) => setOtp(e.target.value)} required style={{ width: '100%', paddingLeft: '40px', height: '48px', borderRadius: '8px', border: '1px solid var(--brand-primary)', background: 'rgba(240, 185, 11, 0.05)', color: '#fff', outline: 'none' }} />
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-12px' }}>
+                {timer > 0 ? (
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Resend OTP in <b style={{ color: 'var(--brand-primary)' }}>{timer}s</b></span>
+                ) : (
+                  <button type="button" onClick={handleSendOtp} style={{ background: 'none', border: 'none', color: 'var(--brand-primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Resend OTP</button>
+                )}
               </div>
 
               <div style={{ position: 'relative' }}>
