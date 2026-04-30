@@ -54,6 +54,9 @@ public class OtpService {
     @Value("${fast2sms.api-key:}")
     private String fast2smsApiKey;
 
+    @Value("${two-factor.api-key:}")
+    private String twoFactorApiKey;
+
     @Value("${twilio.account-sid:}")
     private String twilioSid;
 
@@ -102,22 +105,24 @@ public class OtpService {
             try {
                 if (brevoApiKey != null && !brevoApiKey.isEmpty() && !brevoApiKey.contains("your-brevo")) {
                     // Prepare Brevo API Request
-                    java.util.Map<String, Object> sender = java.util.Map.of("name", brevoSenderName, "email", brevoSenderEmail);
-                    java.util.List<java.util.Map<String, String>> to = java.util.List.of(java.util.Map.of("email", identifier));
-                    
+                    java.util.Map<String, Object> sender = java.util.Map.of("name", brevoSenderName, "email",
+                            brevoSenderEmail);
+                    java.util.List<java.util.Map<String, String>> to = java.util.List
+                            .of(java.util.Map.of("email", identifier));
+
                     java.util.Map<String, Object> body = java.util.Map.of(
-                        "sender", sender,
-                        "to", to,
-                        "subject", "Stockify OTP Verification",
-                        "textContent", textMessage
-                    );
+                            "sender", sender,
+                            "to", to,
+                            "subject", "Stockify OTP Verification",
+                            "textContent", textMessage);
 
                     org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
                     headers.set("api-key", brevoApiKey);
                     headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
 
-                    org.springframework.http.HttpEntity<java.util.Map<String, Object>> request = new org.springframework.http.HttpEntity<>(body, headers);
-                    
+                    org.springframework.http.HttpEntity<java.util.Map<String, Object>> request = new org.springframework.http.HttpEntity<>(
+                            body, headers);
+
                     restTemplate.postForObject("https://api.brevo.com/v3/smtp/email", request, String.class);
                     System.out.println("✅ REAL Brevo Email Sent to " + identifier);
                 } else {
@@ -129,11 +134,25 @@ public class OtpService {
                 logError(errorMsg);
             }
         }
-        // Attempt to send REAL SMS via Twilio or MSG91
+        // Attempt to send REAL SMS via 2Factor, Twilio, MSG91, or Fast2SMS
         else {
             try {
-                // Priority 1: Twilio
-                if (twilioSid != null && !twilioSid.isEmpty() && !twilioToken.contains("PASTE")) {
+                // Priority 1: 2Factor (Most reliable for India)
+                if (twoFactorApiKey != null && !twoFactorApiKey.isEmpty()) {
+                    String sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
+                    if (sanitizedMobile.length() > 10 && sanitizedMobile.startsWith("91")) {
+                        sanitizedMobile = sanitizedMobile.substring(2);
+                    }
+                    
+                    String url = String.format(
+                        "https://2factor.in/API/V1/%s/SMS/%s/%s/OTP1",
+                        twoFactorApiKey, sanitizedMobile, otp);
+                    
+                    restTemplate.getForObject(url, String.class);
+                    System.out.println("✅ REAL 2Factor SMS Sent to " + sanitizedMobile);
+                }
+                // Priority 2: Twilio
+                else if (twilioSid != null && !twilioSid.isEmpty() && !twilioToken.contains("PASTE")) {
                     String finalNumber = identifier.replace("+", "").trim();
                     // If it's a 10-digit number, prepend the India country code +91
                     if (finalNumber.length() == 10) {
@@ -170,9 +189,9 @@ public class OtpService {
                     if (sanitizedMobile.length() > 10 && sanitizedMobile.startsWith("91")) {
                         sanitizedMobile = sanitizedMobile.substring(2);
                     }
-                    
+
                     String message = "Your Stockify Verification Code is: " + otp;
-                    
+
                     org.springframework.util.MultiValueMap<String, String> map = new org.springframework.util.LinkedMultiValueMap<>();
                     map.add("route", "v3");
                     map.add("sender_id", "FT2SMS");
@@ -185,11 +204,12 @@ public class OtpService {
                     headers.set("authorization", fast2smsApiKey);
                     headers.setContentType(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED);
 
-                    org.springframework.http.HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = 
-                        new org.springframework.http.HttpEntity<>(map, headers);
-                    
+                    org.springframework.http.HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = new org.springframework.http.HttpEntity<>(
+                            map, headers);
+
                     System.out.println("📡 Sending Fast2SMS Form Data POST...");
-                    String response = restTemplate.postForObject("https://www.fast2sms.com/dev/bulkV2", request, String.class);
+                    String response = restTemplate.postForObject("https://www.fast2sms.com/dev/bulkV2", request,
+                            String.class);
                     System.out.println("✅ Fast2SMS Response: " + response);
                     System.out.println("✅ REAL Fast2SMS OTP Sent to " + sanitizedMobile);
                 }
