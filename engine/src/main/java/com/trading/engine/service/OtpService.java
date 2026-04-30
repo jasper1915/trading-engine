@@ -145,8 +145,8 @@ public class OtpService {
                     }
                     
                     String url = String.format(
-                        "https://2factor.in/API/V1/%s/SMS/%s/%s/OTP1",
-                        twoFactorApiKey, sanitizedMobile, otp);
+                        "https://2factor.in/API/V1/%s/SMS/%s/AUTOGEN",
+                        twoFactorApiKey, sanitizedMobile);
                     
                     restTemplate.getForObject(url, String.class);
                     System.out.println("✅ REAL 2Factor SMS Sent to " + sanitizedMobile);
