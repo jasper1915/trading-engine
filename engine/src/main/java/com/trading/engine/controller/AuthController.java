@@ -24,12 +24,14 @@ public class AuthController {
 
     @PostMapping("/register-verified")
     public java.util.Map<String, String> registerVerified(@RequestBody java.util.Map<String, String> payload) {
-        String identifier = payload.get("identifier");
+        String identifier = payload.get("identifier"); // The one verified via OTP
         String otp = payload.get("otp");
+        String email = payload.get("email");
+        String phone = payload.get("phone");
         String password = payload.get("password");
         String username = payload.get("username");
         String panNumber = payload.get("panNumber");
-        authService.registerVerified(identifier, otp, password, username, panNumber);
+        authService.registerVerified(identifier, otp, email, phone, password, username, panNumber);
         return java.util.Map.of("message", "User Registered successfully");
     }
 

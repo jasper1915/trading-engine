@@ -104,17 +104,14 @@ public class AuthService {
         return "User Registered";
     }
 
-    public String registerVerified(String identifier, String otp, String password, String username, String panNumber) {
-        String lowerId = identifier.toLowerCase();
-        if (!otpService.verifyOtp(lowerId, otp)) {
+    public String registerVerified(String verifiedIdentifier, String otp, String email, String phone, String password, String username, String panNumber) {
+        String lowerVerifiedId = verifiedIdentifier.toLowerCase();
+        if (!otpService.verifyOtp(lowerVerifiedId, otp)) {
             throw new RuntimeException("Invalid or expired OTP");
         }
         RegisterRequest req = new RegisterRequest();
-        if (lowerId.contains("@")) {
-            req.setEmail(lowerId);
-        } else {
-            req.setPhone(identifier);
-        }
+        req.setEmail(email != null ? email.toLowerCase() : null);
+        req.setPhone(phone);
         req.setPassword(password);
         req.setUsername(username);
         req.setPanNumber(panNumber);
