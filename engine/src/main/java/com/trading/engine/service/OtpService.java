@@ -89,12 +89,19 @@ public class OtpService {
 
     public void generateAndSendOtp(String identifier, String action) {
         String otp = String.format("%06d", new Random().nextInt(999999));
-        otpStorage.put(identifier, otp);
+        
+        // 🧼 Sanitize identifier (especially for phone numbers)
+        String sanitizedId = identifier.toLowerCase().replace("+", "").replace(" ", "").trim();
+        if (!sanitizedId.contains("@") && sanitizedId.startsWith("91") && sanitizedId.length() > 10) {
+            sanitizedId = sanitizedId.substring(2);
+        }
+        
+        otpStorage.put(sanitizedId, otp);
 
         // 🔥 DEBUG OUTPUT FOR TERMINAL
         System.out.println("\n========================================");
-        System.out.println("🚀 [FORTUNEX OTP DEBUG]");
-        System.out.println("USER: " + identifier);
+        System.out.println("🚀 [STOCKIFY OTP DEBUG]");
+        System.out.println("USER: " + sanitizedId);
         System.out.println("CODE: " + otp);
         System.out.println("========================================\n");
 
@@ -104,7 +111,7 @@ public class OtpService {
         if (identifier.contains("@")) {
             try {
                 if (brevoApiKey != null && !brevoApiKey.isEmpty() && !brevoApiKey.contains("your-brevo")) {
-                    // Prepare Brevo API Request
+                    // ... (existing email logic)
                     java.util.Map<String, Object> sender = java.util.Map.of("name", brevoSenderName, "email",
                             brevoSenderEmail);
                     java.util.List<java.util.Map<String, String>> to = java.util.List
@@ -139,17 +146,13 @@ public class OtpService {
             try {
                 // Priority 1: 2Factor (Most reliable for India)
                 if (twoFactorApiKey != null && !twoFactorApiKey.isEmpty()) {
-                    String sanitizedMobile = identifier.replace("+", "").replace(" ", "").trim();
-                    if (sanitizedMobile.length() > 10 && sanitizedMobile.startsWith("91")) {
-                        sanitizedMobile = sanitizedMobile.substring(2);
-                    }
-                    
+                    // Use the sanitized number and our OWN generated OTP
                     String url = String.format(
-                        "https://2factor.in/API/V1/%s/SMS/%s/AUTOGEN",
-                        twoFactorApiKey, sanitizedMobile);
+                        "https://2factor.in/API/V1/%s/SMS/%s/%s/2FACTOR-OTP",
+                        twoFactorApiKey, sanitizedId, otp);
                     
                     restTemplate.getForObject(url, String.class);
-                    System.out.println("✅ REAL 2Factor SMS Sent to " + sanitizedMobile);
+                    System.out.println("✅ REAL 2Factor SMS Sent to " + sanitizedId + " with code " + otp);
                 }
                 // Priority 2: Twilio
                 else if (twilioSid != null && !twilioSid.isEmpty() && !twilioToken.contains("PASTE")) {
@@ -229,7 +232,13 @@ public class OtpService {
     }
 
     public boolean verifyOtp(String identifier, String otp) {
-        String storedOtp = otpStorage.get(identifier);
+        // 🧼 Sanitize identifier to match the key used in storage
+        String sanitizedId = identifier.toLowerCase().replace("+", "").replace(" ", "").trim();
+        if (!sanitizedId.contains("@") && sanitizedId.startsWith("91") && sanitizedId.length() > 10) {
+            sanitizedId = sanitizedId.substring(2);
+        }
+        
+        String storedOtp = otpStorage.get(sanitizedId);
         return otp != null && otp.equals(storedOtp);
     }
 
