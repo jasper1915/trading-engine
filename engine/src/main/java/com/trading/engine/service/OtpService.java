@@ -92,7 +92,7 @@ public class OtpService {
         System.out.println("CODE: " + otp);
         System.out.println("========================================\n");
 
-        String textMessage = "Your FortuneX Verification Code is: " + otp;
+        String textMessage = "Your Stockify Verification Code is: " + otp;
 
         // Attempt to send REAL Email via Brevo
         if (identifier.contains("@")) {
