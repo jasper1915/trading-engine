@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import { User, Mail, Phone, ShieldCheck, CreditCard, Edit2, X, Lock, Shield, Bell, Camera } from 'lucide-react'
+import { User, Mail, Phone, ShieldCheck, CreditCard, Edit2, X, Lock, Shield, Bell, Camera, LogOut } from 'lucide-react'
 
-const Profile = () => {
+const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -113,17 +113,27 @@ const Profile = () => {
   }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '900px', margin: '0 auto' }}>
+    <div className="profile-container" style={{ padding: '40px', maxWidth: '900px', margin: '0 auto' }}>
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .profile-container { padding: 16px !important; }
+            .profile-header { flex-direction: column; text-align: center; gap: 20px !important; }
+            .profile-grid { grid-template-columns: 1fr !important; }
+            .security-grid { grid-template-columns: 1fr !important; }
+          }
+        `}
+      </style>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '8px' }}>Account Settings</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Manage your identity and security preferences.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
+      <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
         
         {/* Profile Card */}
         <div className="glass" style={{ borderRadius: '24px', padding: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px' }}>
+          <div className="profile-header" style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px' }}>
             <div 
               style={{ position: 'relative', cursor: 'pointer' }}
               onClick={() => handleEditClick('profilePic', profile.profilePic || '')}
@@ -169,7 +179,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div className="security-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
              <div className="glass-inner" style={{ padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)' }}>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '8px' }}>Email Address</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -192,7 +202,7 @@ const Profile = () => {
           <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Lock size={20} color="var(--brand-primary)" /> Security Suite
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div className="security-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             
             <div className="glass" style={{ padding: '24px', borderRadius: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
@@ -237,6 +247,22 @@ const Profile = () => {
             </div>
 
           </div>
+        </div>
+
+        {/* MOBILE SIGN OUT BUTTON */}
+        <div className="mobile-only" style={{ marginTop: '20px' }}>
+           <button 
+             onClick={onLogout}
+             style={{ 
+               width: '100%', padding: '16px', borderRadius: '16px', 
+               background: 'rgba(239, 68, 68, 0.1)', color: 'var(--brand-danger)', 
+               border: '1px solid rgba(239, 68, 68, 0.2)', fontWeight: 700, 
+               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+               cursor: 'pointer'
+             }}
+           >
+             <LogOut size={20} /> Sign Out
+           </button>
         </div>
 
       </div>

@@ -46,14 +46,38 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
   };
 
   return (
-    <div className="glass" style={{ borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="glass order-tabs-container" style={{ borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .order-tabs-container thead { display: none; }
+            .order-tabs-container td { 
+              display: flex; 
+              justify-content: space-between; 
+              padding: 10px 16px !important;
+              border: none !important;
+            }
+            .order-tabs-container td::before {
+              content: attr(data-label);
+              font-weight: 600;
+              color: var(--text-secondary);
+              font-size: 0.75rem;
+            }
+            .order-tabs-container tr {
+              display: block;
+              border-bottom: 1px solid var(--border-color);
+              padding: 10px 0;
+            }
+          }
+        `}
+      </style>
       {/* TABS HEADER */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)', flexWrap: 'wrap' }}>
         <button 
           onClick={() => setActiveTab('active')}
           style={{ 
-            padding: '16px 24px', 
-            fontSize: '0.9rem', 
+            padding: '12px 20px', 
+            fontSize: '0.85rem', 
             fontWeight: 600,
             color: activeTab === 'active' ? 'var(--brand-primary)' : 'var(--text-secondary)',
             borderBottom: activeTab === 'active' ? '2px solid var(--brand-primary)' : 'none',
@@ -65,8 +89,8 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
         <button 
           onClick={() => setActiveTab('history')}
           style={{ 
-            padding: '16px 24px', 
-            fontSize: '0.9rem', 
+            padding: '12px 20px', 
+            fontSize: '0.85rem', 
             fontWeight: 600,
             color: activeTab === 'history' ? 'var(--brand-primary)' : 'var(--text-secondary)',
             borderBottom: activeTab === 'history' ? '2px solid var(--brand-primary)' : 'none',
@@ -79,8 +103,8 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
 
       {/* CONTENT */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
-          <thead style={{ position: 'sticky', top: 0, background: '#0f172a', zIndex: 1 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8rem' }}>
+          <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
               <th style={{ padding: '12px 20px' }}>Date</th>
               <th style={{ padding: '12px 20px' }}>Pair</th>
@@ -93,13 +117,13 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
           <tbody>
             {activeTab === 'active' ? (
               activeOrders.map((o, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(o.timestamp).toLocaleTimeString()}</td>
-                  <td style={{ padding: '12px 20px', fontWeight: 600 }}>{o.symbol}/{o.currency}</td>
-                  <td style={{ padding: '12px 20px', color: o.type === 'BUY' ? 'var(--brand-success)' : 'var(--brand-danger)', fontWeight: 700 }}>{o.type}</td>
-                  <td style={{ padding: '12px 20px' }}>${o.price.toLocaleString()}</td>
-                  <td style={{ padding: '12px 20px' }}>{o.quantity}</td>
-                  <td style={{ padding: '12px 20px' }}>
+                <tr key={i}>
+                  <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(o.timestamp).toLocaleTimeString()}</td>
+                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{o.symbol}/{o.currency}</td>
+                  <td data-label="Side" style={{ padding: '12px 20px', color: o.type === 'BUY' ? 'var(--brand-success)' : 'var(--brand-danger)', fontWeight: 700 }}>{o.type}</td>
+                  <td data-label="Price" style={{ padding: '12px 20px' }}>${o.price.toLocaleString()}</td>
+                  <td data-label="Amount" style={{ padding: '12px 20px' }}>{o.quantity}</td>
+                  <td data-label="Action" style={{ padding: '12px 20px' }}>
                     <button onClick={() => handleCancel(o.orderId)} style={{ color: 'var(--brand-danger)', background: 'none', padding: 0 }}>
                       <XCircle size={18} />
                     </button>
@@ -108,12 +132,12 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
               ))
             ) : (
               [...tradeHistory].reverse().map((t, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleTimeString()}</td>
-                  <td style={{ padding: '12px 20px', fontWeight: 600 }}>ASSET/USD</td>
-                  <td style={{ padding: '12px 20px', color: 'var(--brand-success)', fontWeight: 700 }}>FILLED</td>
-                  <td style={{ padding: '12px 20px' }}>${t.price.toLocaleString()}</td>
-                  <td style={{ padding: '12px 20px' }}>{t.quantity}</td>
+                <tr key={i}>
+                  <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleTimeString()}</td>
+                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{t.symbol || 'BTC'}/USD</td>
+                  <td data-label="Side" style={{ padding: '12px 20px', color: 'var(--brand-success)', fontWeight: 700 }}>FILLED</td>
+                  <td data-label="Price" style={{ padding: '12px 20px' }}>${t.price.toLocaleString()}</td>
+                  <td data-label="Amount" style={{ padding: '12px 20px' }}>{t.quantity}</td>
                 </tr>
               ))
             )}

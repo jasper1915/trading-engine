@@ -51,7 +51,7 @@ function App() {
             />
             <Route 
               path="/profile" 
-              element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} 
+              element={isAuthenticated ? <Profile onLogout={handleLogout} /> : <Navigate to="/login" />} 
             />
           </Routes>
           {isAuthenticated && <AiAssistant />}

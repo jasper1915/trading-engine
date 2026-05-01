@@ -235,7 +235,7 @@ const Dashboard = () => {
         </div>
 
         {/* ORDER TABS */}
-        <div className="desktop-only" style={{ height: '300px', flexShrink: 0 }}>
+        <div style={{ height: '300px', flexShrink: 0, marginBottom: '80px' }}>
           <OrderTabs symbol={selectedSymbol} />
         </div>
       </div>

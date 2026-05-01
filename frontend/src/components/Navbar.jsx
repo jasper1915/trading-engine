@@ -9,7 +9,6 @@ const Navbar = ({ onLogout }) => {
   const navItems = [
     { name: 'Trade', path: '/', icon: LayoutDashboard },
     { name: 'Portfolio', path: '/portfolio', icon: Wallet },
-    { name: 'Profile', path: '/profile', icon: User },
   ]
 
   const [profile, setProfile] = useState(null)
