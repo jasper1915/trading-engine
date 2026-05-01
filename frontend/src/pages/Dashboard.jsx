@@ -236,7 +236,7 @@ const Dashboard = () => {
 
         {/* ORDER TABS */}
         <div style={{ height: '300px', flexShrink: 0, marginBottom: '80px' }}>
-          <OrderTabs symbol={selectedSymbol} />
+          <OrderTabs symbol={selectedSymbol} markets={markets} />
         </div>
       </div>
 

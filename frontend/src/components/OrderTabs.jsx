@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { XCircle, Clock, CheckCircle } from 'lucide-react';
 
-const OrderTabs = ({ symbol = 'BTC' }) => {
+const OrderTabs = ({ symbol = 'BTC', markets = [] }) => {
+  const getMarketName = (sym) => {
+    const m = markets.find(item => item.symbol === sym);
+    return m ? m.name : sym;
+  };
+
   const [activeTab, setActiveTab] = useState('active');
   const [activeOrders, setActiveOrders] = useState([]);
   const [tradeHistory, setTradeHistory] = useState([]);
@@ -119,7 +124,7 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
               activeOrders.map((o, i) => (
                 <tr key={i}>
                   <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(o.timestamp).toLocaleTimeString()}</td>
-                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{o.symbol}/{o.currency}</td>
+                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{getMarketName(o.symbol)}/USD</td>
                   <td data-label="Side" style={{ padding: '12px 20px', color: o.type === 'BUY' ? 'var(--brand-success)' : 'var(--brand-danger)', fontWeight: 700 }}>{o.type}</td>
                   <td data-label="Price" style={{ padding: '12px 20px' }}>${o.price.toLocaleString()}</td>
                   <td data-label="Amount" style={{ padding: '12px 20px' }}>{o.quantity}</td>
@@ -134,7 +139,7 @@ const OrderTabs = ({ symbol = 'BTC' }) => {
               [...tradeHistory].reverse().map((t, i) => (
                 <tr key={i}>
                   <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleTimeString()}</td>
-                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{t.symbol || 'BTC'}/USD</td>
+                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{getMarketName(t.symbol || symbol)}/USD</td>
                   <td data-label="Side" style={{ padding: '12px 20px', color: 'var(--brand-success)', fontWeight: 700 }}>FILLED</td>
                   <td data-label="Price" style={{ padding: '12px 20px' }}>${t.price.toLocaleString()}</td>
                   <td data-label="Amount" style={{ padding: '12px 20px' }}>{t.quantity}</td>
