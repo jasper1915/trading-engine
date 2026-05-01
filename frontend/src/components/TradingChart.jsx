@@ -1,61 +1,52 @@
-import React, { useEffect, useRef } from 'react'
-import { createChart, ColorType } from 'lightweight-charts'
+import React, { useEffect, useRef, memo } from 'react'
 
 const TradingChart = ({ symbol = 'BTC' }) => {
-  const chartContainerRef = useRef()
+  const container = useRef()
 
   useEffect(() => {
-    const chart = createChart(chartContainerRef.current, {
-      layout: {
-        background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#848E9C',
-      },
-      grid: {
-        vertLines: { color: 'rgba(43, 49, 57, 0.5)' },
-        horzLines: { color: 'rgba(43, 49, 57, 0.5)' },
-      },
-      width: chartContainerRef.current.clientWidth,
-      height: 500,
+    const script = document.createElement("script")
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
+    script.type = "text/javascript"
+    script.async = true
+    
+    // Map internal symbols to TradingView symbols
+    const tvSymbol = symbol === 'USD' ? 'FX_IDC:USDTUSD' : `BINANCE:${symbol}USDT`
+
+    script.innerHTML = JSON.stringify({
+      "autosize": true,
+      "symbol": tvSymbol,
+      "interval": "D",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "enable_publishing": false,
+      "allow_symbol_change": true,
+      "calendar": false,
+      "support_host": "https://www.tradingview.com"
     })
 
-    const candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#0ECB81',
-      downColor: '#F6465D',
-      borderVisible: false,
-      wickUpColor: '#0ECB81',
-      wickDownColor: '#F6465D',
-    })
-
-    // Sample data (In a real app, this would be fetched based on symbol)
-    candlestickSeries.setData([
-      { time: '2023-10-01', open: 180.34, high: 180.99, low: 178.57, close: 179.85 },
-      { time: '2023-10-02', open: 179.85, high: 181.43, low: 179.47, close: 180.82 },
-      { time: '2023-10-03', open: 180.82, high: 181.70, low: 180.29, close: 181.21 },
-      { time: '2023-10-04', open: 181.21, high: 182.50, low: 181.00, close: 182.10 },
-      { time: '2023-10-05', open: 182.10, high: 183.00, low: 181.50, close: 182.80 },
-    ])
-
-    const handleResize = () => {
-      chart.applyOptions({ width: chartContainerRef.current.clientWidth })
+    // Clear existing content before appending new script
+    if (container.current) {
+        container.current.innerHTML = ''
+        container.current.appendChild(script)
     }
-
-    window.addEventListener('resize', handleResize)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
-      chart.remove()
+        if (container.current) container.current.innerHTML = ''
     }
-  }, [symbol]) // Re-run effect when symbol changes
+  }, [symbol])
 
   return (
-    <div className="glass" style={{ borderRadius: '12px', padding: '16px' }}>
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <span style={{ fontSize: '1.2rem', fontWeight: 700 }}>{symbol} / USD</span>
-        <span style={{ color: 'var(--brand-success)', fontWeight: 600 }}>Live Chart</span>
+    <div className="tradingview-widget-container glass" style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden' }}>
+      <div className="tradingview-widget-container__widget" ref={container} style={{ height: "100%", width: "100%" }}></div>
+      <div className="tradingview-widget-copyright" style={{ display: 'none' }}>
+        <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+          <span className="blue-text">Track all markets on TradingView</span>
+        </a>
       </div>
-      <div ref={chartContainerRef} style={{ width: '100%' }} />
     </div>
   )
 }
 
-export default TradingChart
+export default memo(TradingChart)
