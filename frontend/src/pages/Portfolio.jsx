@@ -57,13 +57,45 @@ const Portfolio = () => {
   }, 0)
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="portfolio-container" style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
+      <style>
+        {`
+          .portfolio-container { padding: 40px; }
+          .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+          
+          @media (max-width: 768px) {
+            .portfolio-container { padding: 16px !important; }
+            .stats-grid { grid-template-columns: 1fr !important; gap: 16px; }
+            .hide-mobile { display: none !important; }
+            
+            /* Responsive Tables */
+            table thead { display: none; }
+            table td { 
+              display: flex; 
+              justify-content: space-between; 
+              padding: 12px 16px !important;
+              border: none !important;
+            }
+            table td::before {
+              content: attr(data-label);
+              font-weight: 600;
+              color: var(--text-secondary);
+              font-size: 0.8rem;
+            }
+            table tr {
+              display: block;
+              border-bottom: 1px solid var(--border-color);
+              padding: 8px 0;
+            }
+          }
+        `}
+      </style>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '8px' }}>Portfolio</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Track your assets and performance</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '40px' }}>
+      <div className="stats-grid">
         <div className="glass" style={{ padding: '24px', borderRadius: '16px' }}>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '8px' }}>Estimated Balance</p>
           <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>
@@ -115,18 +147,18 @@ const Portfolio = () => {
               const pnl = h.avgPrice > 0 ? (price - h.avgPrice) * h.quantity : 0;
               return (
               <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
-                <td style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <td data-label="Asset" style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--brand-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 700, fontSize: '0.8rem' }}>
                     {h.asset.substring(0, 3)}
                   </div>
                   <span style={{ fontWeight: 600 }}>{h.asset}</span>
                 </td>
-                <td style={{ padding: '20px 24px' }}>{h.quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</td>
-                <td style={{ padding: '20px 24px' }}>
+                <td data-label="Balance" style={{ padding: '20px 24px' }}>{h.quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</td>
+                <td data-label="Avg Price" style={{ padding: '20px 24px' }}>
                   {h.avgPrice > 0 ? `$${h.avgPrice.toLocaleString()}` : 'N/A (Gifted)'}
                 </td>
-                <td style={{ padding: '20px 24px' }}>${price.toLocaleString()}</td>
-                <td style={{ 
+                <td data-label="Current Price" style={{ padding: '20px 24px' }}>${price.toLocaleString()}</td>
+                <td data-label="PnL" style={{ 
                   padding: '20px 24px', 
                   color: pnl >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)' 
                 }}>
@@ -174,8 +206,8 @@ const Portfolio = () => {
 
               return (
               <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
-                <td style={{ padding: '20px 24px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleString()}</td>
-                <td style={{ padding: '20px 24px' }}>
+                <td data-label="Date" style={{ padding: '20px 24px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleString()}</td>
+                <td data-label="Asset" style={{ padding: '20px 24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--brand-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 700, fontSize: '0.5rem' }}>
                       {symbol.substring(0, 3)}
@@ -183,7 +215,7 @@ const Portfolio = () => {
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{symbol}</span>
                   </div>
                 </td>
-                <td style={{ padding: '20px 24px' }}>
+                <td data-label="Side" style={{ padding: '20px 24px' }}>
                   <span style={{ 
                     padding: '4px 8px', 
                     borderRadius: '4px', 
@@ -195,9 +227,9 @@ const Portfolio = () => {
                     {isBuyer ? 'BUY' : 'SELL'}
                   </span>
                 </td>
-                <td style={{ padding: '20px 24px', fontWeight: 600 }}>${t.price.toLocaleString()}</td>
-                <td style={{ padding: '20px 24px' }}>{t.quantity}</td>
-                <td style={{ 
+                <td data-label="Price" style={{ padding: '20px 24px', fontWeight: 600 }}>${t.price.toLocaleString()}</td>
+                <td data-label="Qty" style={{ padding: '20px 24px' }}>{t.quantity}</td>
+                <td data-label="PnL" style={{ 
                   padding: '20px 24px', 
                   fontWeight: 700,
                   color: tradePnL >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)'

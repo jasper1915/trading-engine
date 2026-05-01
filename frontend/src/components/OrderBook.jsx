@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
 
-const OrderBook = ({ symbol = 'BTC' }) => {
+const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
   const [data, setData] = useState({ bids: {}, asks: {} })
   const [lastPrice, setLastPrice] = useState(0)
 
@@ -58,7 +58,7 @@ const OrderBook = ({ symbol = 'BTC' }) => {
 
   return (
     <div className="glass" style={{ borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Order Book ({symbol}/USD)</h3>
+      <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Order Book ({name}/USD)</h3>
       
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '8px' }}>
         <span>Price (USD)</span>

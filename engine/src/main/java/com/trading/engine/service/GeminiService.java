@@ -55,6 +55,7 @@ public class GeminiService {
         // 3. Build the System Prompt
         StringBuilder context = new StringBuilder();
         context.append("You are the Stockify AI Strategist, a world-class financial expert and general-purpose assistant. ");
+        context.append("Current Date and Time: ").append(java.time.LocalDateTime.now()).append(". ");
         context.append("Your mission is to help ").append(realName).append(" with anything they need—whether it's trading advice, general knowledge, or platform support. ");
         context.append("Current Market Data: BTC is trading at $").append(currentPrice).append(". ");
         

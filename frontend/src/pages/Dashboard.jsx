@@ -136,7 +136,7 @@ const Dashboard = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: markets.find(m => m.symbol === selectedSymbol)?.color }} />
-          <span style={{ fontWeight: 700 }}>{selectedSymbol}/USD</span>
+          <span style={{ fontWeight: 700 }}>{markets.find(m => m.symbol === selectedSymbol)?.name || selectedSymbol}/USD</span>
         </div>
         <button onClick={() => setShowMarketMenu(!showMarketMenu)} style={{ background: 'transparent', padding: '4px' }}>
           {showMarketMenu ? <X size={20} /> : <Menu size={20} />}
@@ -180,7 +180,7 @@ const Dashboard = () => {
           >
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: m.color }} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{m.symbol}/USD</div>
+              <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{m.name}/USD</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{m.name}</div>
             </div>
           </div>
@@ -243,7 +243,10 @@ const Dashboard = () => {
       {/* RIGHT COLUMN */}
       <div className="right-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
         <div style={{ flex: 1, minHeight: '300px' }}>
-          <OrderBook symbol={selectedSymbol} />
+          <OrderBook 
+            symbol={selectedSymbol} 
+            name={markets.find(m => m.symbol === selectedSymbol)?.name || selectedSymbol} 
+          />
         </div>
         <div style={{ flexShrink: 0 }}>
           <OrderEntry symbol={selectedSymbol} />
