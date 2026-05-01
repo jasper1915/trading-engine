@@ -36,7 +36,21 @@ const AiAssistant = () => {
   }
 
   return (
-    <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000 }}>
+    <div className="ai-assistant-container" style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000 }}>
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .ai-assistant-container {
+              bottom: 100px !important;
+              right: 20px !important;
+            }
+            .ai-window {
+              width: calc(100vw - 40px) !important;
+              height: 60vh !important;
+            }
+          }
+        `}
+      </style>
       {/* Chat Bubble Toggle */}
       {!isOpen && (
         <button 
@@ -66,7 +80,7 @@ const AiAssistant = () => {
       {/* Chat Window */}
       {isOpen && (
         <div 
-          className="glass"
+          className="glass ai-window"
           style={{ 
             width: '380px', 
             height: '500px', 
