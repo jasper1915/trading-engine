@@ -54,6 +54,25 @@ public class MatchingEngine {
         return trades.subList(fromIndex, trades.size());
     }
 
+    // 🛠️ RESTORE (For persistence)
+    public void restoreOrder(Order order) {
+        lock.lock();
+        try {
+            orderMap.put(order.getOrderId(), order);
+            String key = getKey(order);
+
+            if (order.getStatus().equals("STOP_PENDING")) {
+                stopOrders.add(order);
+            } else if (order.getType().equalsIgnoreCase("BUY")) {
+                getBuyBook(key).add(order);
+            } else {
+                getSellBook(key).add(order);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
     // 🚀 MAIN ENTRY
     public void processOrder(Order order) {
 

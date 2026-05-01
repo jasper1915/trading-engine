@@ -153,6 +153,7 @@ const Portfolio = () => {
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               <th style={{ padding: '20px 24px' }}>Date</th>
+              <th style={{ padding: '20px 24px' }}>Asset</th>
               <th style={{ padding: '20px 24px' }}>Side</th>
               <th style={{ padding: '20px 24px' }}>Execution Price</th>
               <th style={{ padding: '20px 24px' }}>Qty</th>
@@ -174,6 +175,14 @@ const Portfolio = () => {
               return (
               <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
                 <td style={{ padding: '20px 24px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleString()}</td>
+                <td style={{ padding: '20px 24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--brand-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 700, fontSize: '0.5rem' }}>
+                      {symbol.substring(0, 3)}
+                    </div>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{symbol}</span>
+                  </div>
+                </td>
                 <td style={{ padding: '20px 24px' }}>
                   <span style={{ 
                     padding: '4px 8px', 
@@ -202,7 +211,7 @@ const Portfolio = () => {
             )})}
             {trades.length === 0 && (
               <tr>
-                <td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                   No trades executed yet
                 </td>
               </tr>

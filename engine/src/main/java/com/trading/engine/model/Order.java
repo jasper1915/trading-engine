@@ -76,6 +76,8 @@ public class Order {
     public void setSymbol(String symbol) { this.symbol = symbol; }
     public void setCurrency(String currency) { this.currency = currency; }
     public void setUsername(String username) { this.username = username; }
+    public void setOrderId(String orderId) { this.orderId = orderId; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
     
     @Override
     public String toString() {

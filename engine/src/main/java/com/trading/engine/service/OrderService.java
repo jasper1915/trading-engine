@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,33 @@ public class OrderService {
         this.tradeRepository = tradeRepository;
         this.eventPublisher = eventPublisher;
         this.portfolioService = portfolioService;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println("🚀 [OrderService] Loading active orders from database...");
+        List<OrderEntity> activeOrders = orderRepository.findByStatusIn(List.of("NEW", "PARTIAL", "STOP_PENDING"));
+        int count = 0;
+        for (OrderEntity entity : activeOrders) {
+            Order order = new Order();
+            order.setOrderId(entity.getId());
+            order.setSymbol(entity.getSymbol());
+            order.setPrice(entity.getPrice());
+            order.setQuantity(entity.getQuantity());
+            order.setOriginalQuantity(entity.getOriginalQuantity());
+            order.setType(entity.getType());
+            order.setStatus(entity.getStatus());
+            order.setOrderType(entity.getOrderType());
+            order.setTimeInForce(entity.getTimeInForce());
+            order.setTimestamp(entity.getTimestamp());
+            order.setCurrency(entity.getCurrency());
+            order.setUsername(entity.getUsername());
+            
+            // Re-process without triggering new wallet locks or duplicate trades
+            engine.restoreOrder(order);
+            count++;
+        }
+        System.out.println("✅ [OrderService] Restored " + count + " orders to the matching engine.");
     }
 
     // ===========================
@@ -126,8 +154,10 @@ public class OrderService {
         // ===========================
         // 💾 SAVE ORDER & TRADES
         // ===========================
-        saveOrderToDb(order);
+        saveOrderToDb(order); // Taker
         for (Trade trade : newTrades) {
+            saveOrderToDb(engine.getOrderById(trade.getBuyOrderId())); // Maker/Taker Buy
+            saveOrderToDb(engine.getOrderById(trade.getSellOrderId())); // Maker/Taker Sell
             saveTradeToDb(trade);
         }
 
@@ -229,6 +259,7 @@ public class OrderService {
     private void saveTradeToDb(Trade trade) {
         TradeEntity tradeEntity = new TradeEntity();
         tradeEntity.setId(trade.getId());
+        tradeEntity.setSymbol(trade.getSymbol());
         tradeEntity.setBuyOrderId(trade.getBuyOrderId());
         tradeEntity.setSellOrderId(trade.getSellOrderId());
         tradeEntity.setBuyerUsername(trade.getBuyerUsername());
@@ -244,6 +275,9 @@ public class OrderService {
         String username = order.getUsername();
         boolean result = engine.cancelOrder(id);
         if (!result) return false;
+
+        // 💾 UPDATE DB
+        saveOrderToDb(order);
 
         if ("BUY".equalsIgnoreCase(order.getType())) {
             BigDecimal remaining = order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity()));

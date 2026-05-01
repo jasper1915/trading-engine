@@ -12,14 +12,25 @@ const OrderBook = ({ symbol = 'BTC' }) => {
       
       // Update last price from recent trades if available
       const tradesRes = await api.get('/orders/trades')
-      const symbolTrades = tradesRes.data.filter(t => t.buyOrderId.includes(symbol) || t.sellOrderId.includes(symbol))
+      // Ensure we match the symbol correctly in the trades list
+      const symbolTrades = tradesRes.data.filter(t => t.symbol === symbol)
       
       if (symbolTrades.length > 0) {
           setLastPrice(symbolTrades[symbolTrades.length - 1].price)
       } else {
-          // If no trades yet, maybe set a baseline?
-          if (Object.keys(res.data.asks).length > 0) {
-            setLastPrice(parseFloat(Object.keys(res.data.asks)[0]))
+          // 🔥 FALLBACK: Fetch real market price from Binance if no local trades exist
+          try {
+              const binanceRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`)
+              const bData = await binanceRes.json()
+              if (bData.price) {
+                  setLastPrice(parseFloat(bData.price))
+              } else if (Object.keys(res.data.asks).length > 0) {
+                  setLastPrice(parseFloat(Object.keys(res.data.asks)[0]))
+              }
+          } catch (binanceErr) {
+              if (Object.keys(res.data.asks).length > 0) {
+                  setLastPrice(parseFloat(Object.keys(res.data.asks)[0]))
+              }
           }
       }
     } catch (err) {

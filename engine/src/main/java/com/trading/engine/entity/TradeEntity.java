@@ -22,9 +22,11 @@ public class TradeEntity {
     private int quantity;
 
     private long timestamp;
+    private String symbol;
 
     // getters
     public String getId() { return id; }
+    public String getSymbol() { return symbol; }
     public String getBuyOrderId() { return buyOrderId; }
     public String getSellOrderId() { return sellOrderId; }
     public String getBuyerUsername() { return buyerUsername; }
@@ -35,6 +37,7 @@ public class TradeEntity {
 
     // setters
     public void setId(String id) { this.id = id; }
+    public void setSymbol(String symbol) { this.symbol = symbol; }
     public void setBuyOrderId(String buyOrderId) { this.buyOrderId = buyOrderId; }
     public void setSellOrderId(String sellOrderId) { this.sellOrderId = sellOrderId; }
     public void setBuyerUsername(String buyerUsername) { this.buyerUsername = buyerUsername; }
