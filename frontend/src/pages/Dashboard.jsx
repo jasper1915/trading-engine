@@ -212,17 +212,31 @@ const Dashboard = () => {
 
           <div className="wallet-stats" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px' }}>USD</div>
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                 <span>USD BALANCE</span>
+                 <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: ${(balances.USD_AVAILABLE + balances.USD_LOCKED).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>${balances.USD_AVAILABLE.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
+                    <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
+                    {balances.USD_LOCKED > 0 && <span>• Locked: ${balances.USD_LOCKED.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>}
+                  </div>
                </div>
             </div>
 
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px' }}>{selectedSymbol}</div>
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                 <span>{selectedSymbol} BALANCE</span>
+                 <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: {(balances.ASSET_AVAILABLE + balances.ASSET_LOCKED).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ fontSize: '1.2rem', fontWeight: 700, color: markets.find(m => m.symbol === selectedSymbol)?.color || '#fff' }}>
                     {balances.ASSET_AVAILABLE.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
+                    <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
+                    {balances.ASSET_LOCKED > 0 && <span>• Locked: {balances.ASSET_LOCKED.toLocaleString(undefined, {maximumFractionDigits: 4})}</span>}
                   </div>
                </div>
             </div>
