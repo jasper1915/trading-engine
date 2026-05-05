@@ -10,8 +10,8 @@ import { useNotification } from '../context/NotificationContext'
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('BTC')
   const [balances, setBalances] = useState({
-    USD_AVAILABLE: 0,
-    USD_LOCKED: 0,
+    BASE_AVAILABLE: 0,
+    BASE_LOCKED: 0,
     ASSET_AVAILABLE: 0,
     ASSET_LOCKED: 0
   })
