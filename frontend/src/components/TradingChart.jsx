@@ -1,60 +1,28 @@
 import React, { useEffect, useRef, memo } from 'react'
 
 const TradingChart = ({ symbol = 'BTC' }) => {
-  const container = useRef()
+  // Map internal symbols to TradingView symbols
+  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
+  const cleanSymbol = symbol.toUpperCase().split(':')[0];
+  const isCrypto = cryptoSymbols.includes(cleanSymbol);
+  
+  let tvSymbol = isCrypto ? `BINANCE:${cleanSymbol}USDT` : `NSE:${cleanSymbol}`
+  if (symbol.includes(':')) {
+    tvSymbol = symbol.toUpperCase();
+  }
 
-  useEffect(() => {
-    const script = document.createElement("script")
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
-    script.type = "text/javascript"
-    script.async = true
-    
-    // Map internal symbols to TradingView symbols
-    const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
-    const cleanSymbol = symbol.toUpperCase().split(':')[0]; // Get core symbol
-    const isCrypto = cryptoSymbols.includes(cleanSymbol);
-    
-    // 🔥 Improved Logic: Try NSE for stocks, Binance for Crypto
-    let tvSymbol = isCrypto ? `BINANCE:${cleanSymbol}USDT` : `NSE:${cleanSymbol}`
-    
-    // If the user provided a full symbol like "NASDAQ:AAPL", use it directly
-    if (symbol.includes(':')) {
-        tvSymbol = symbol.toUpperCase();
-    }
-
-    script.innerHTML = JSON.stringify({
-      "autosize": true,
-      "symbol": tvSymbol,
-      "interval": "D",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "calendar": false,
-      "support_host": "https://www.tradingview.com"
-    })
-
-    // Clear existing content before appending new script
-    if (container.current) {
-        container.current.innerHTML = ''
-        container.current.appendChild(script)
-    }
-
-    return () => {
-        if (container.current) container.current.innerHTML = ''
-    }
-  }, [symbol])
+  // Construct the Iframe URL
+  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_762c9&symbol=${tvSymbol}&interval=D&hidesidetoolbar=1&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=${tvSymbol}`;
 
   return (
     <div className="tradingview-widget-container glass" style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden' }}>
-      <div className="tradingview-widget-container__widget" ref={container} style={{ height: "100%", width: "100%" }}></div>
-      <div className="tradingview-widget-copyright" style={{ display: 'none' }}>
-        <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
-          <span className="blue-text">Track all markets on TradingView</span>
-        </a>
-      </div>
+      <iframe
+        id="tradingview_762c9"
+        src={chartUrl}
+        style={{ width: "100%", height: "100%", border: 'none' }}
+        allowFullScreen
+        title="TradingView Chart"
+      />
     </div>
   )
 }

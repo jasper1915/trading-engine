@@ -109,6 +109,24 @@ const Dashboard = () => {
 
   const [searchTerm, setSearchTerm] = useState('')
 
+  // Map common names to official NSE Tickers
+  const tickerMap = {
+    'ADANI': 'ADANIENT',
+    'RELIANCE': 'RELIANCE',
+    'TATA MOTORS': 'TATAMOTORS',
+    'TATA': 'TCS',
+    'SBI': 'SBIN',
+    'HDFC': 'HDFCBANK',
+    'ICICI': 'ICICIBANK',
+    'AIRTEL': 'BHARTIARTL',
+    'BAJAJ': 'BAJFINANCE'
+  }
+
+  const getTicker = (name) => {
+    const upper = name.toUpperCase().trim()
+    return tickerMap[upper] || upper
+  }
+
   // Filter markets based on search
   const filteredMarkets = markets.filter(m => 
     m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -117,6 +135,12 @@ const Dashboard = () => {
 
   // Check if search term is a valid-looking symbol not in list
   const showGlobalSearch = searchTerm.length >= 2 && !markets.some(m => m.symbol.toLowerCase() === searchTerm.toLowerCase())
+
+  const handleSelectMarket = (sym) => {
+    const finalSym = getTicker(sym)
+    setSelectedSymbol(finalSym)
+    setSearchTerm('')
+  }
 
   return (
     <div className="dashboard-layout">
@@ -229,7 +253,7 @@ const Dashboard = () => {
           {filteredMarkets.map(m => (
             <div 
               key={m.symbol}
-              onClick={() => setSelectedSymbol(m.symbol)}
+              onClick={() => handleSelectMarket(m.symbol)}
               style={{ 
                 padding: '10px 12px', 
                 borderRadius: '8px', 
@@ -252,7 +276,7 @@ const Dashboard = () => {
 
           {showGlobalSearch && (
             <div 
-              onClick={() => setSelectedSymbol(searchTerm.toUpperCase())}
+              onClick={() => handleSelectMarket(searchTerm)}
               style={{ 
                 padding: '16px', 
                 borderRadius: '12px', 
@@ -342,7 +366,7 @@ const Dashboard = () => {
 
         {/* CHART */}
         <div style={{ flex: 1, minHeight: '300px' }}>
-          <TradingChart symbol={selectedSymbol} />
+          <TradingChart key={selectedSymbol} symbol={selectedSymbol} />
         </div>
 
         {/* ORDER TABS */}
