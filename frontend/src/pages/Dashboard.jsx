@@ -25,9 +25,17 @@ const Dashboard = () => {
     { symbol: 'TCS', name: 'Tata Consultancy Services', color: '#1b4d9b' },
     { symbol: 'ZOMATO', name: 'Zomato Ltd', color: '#cb202d' },
     { symbol: 'HDFCBANK', name: 'HDFC Bank', color: '#004c8f' },
+    { symbol: 'ICICIBANK', name: 'ICICI Bank', color: '#f58220' },
     { symbol: 'TATAMOTORS', name: 'Tata Motors', color: '#00a9e0' },
     { symbol: 'INFY', name: 'Infosys Ltd', color: '#007cc3' },
-    { symbol: 'ADANIENT', name: 'Adani Enterprises', color: '#fdb913' }
+    { symbol: 'ADANIENT', name: 'Adani Enterprises', color: '#fdb913' },
+    { symbol: 'ITC', name: 'ITC Ltd', color: '#3156a3' },
+    { symbol: 'BAJFINANCE', name: 'Bajaj Finance', color: '#0072bc' },
+    { symbol: 'BTC', name: 'Bitcoin', color: '#f59e0b' },
+    { symbol: 'ETH', name: 'Ethereum', color: '#6366f1' },
+    { symbol: 'SOL', name: 'Solana', color: '#14f195' },
+    { symbol: 'BNB', name: 'Binance Coin', color: '#f3ba2f' },
+    { symbol: 'XRP', name: 'Ripple', color: '#23292f' }
   ]
 
   const fetchBalances = async () => {
@@ -80,6 +88,17 @@ const Dashboard = () => {
     return () => window.removeEventListener('balanceUpdated', fetchBalances)
   }, [selectedSymbol])
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  // Filter markets based on search
+  const filteredMarkets = markets.filter(m => 
+    m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    m.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Check if search term is a valid-looking symbol not in list
+  const showGlobalSearch = searchTerm.length >= 2 && !markets.some(m => m.symbol.toLowerCase() === searchTerm.toLowerCase())
+
   return (
     <div className="dashboard-layout">
       <style>
@@ -87,12 +106,27 @@ const Dashboard = () => {
           .dashboard-layout {
             padding: 20px;
             display: grid;
-            grid-template-columns: 220px 1fr 320px;
+            grid-template-columns: 240px 1fr 320px;
             gap: 20px;
             height: calc(100vh - 64px);
             max-width: 1600px;
             margin: 0 auto;
             width: 100%;
+          }
+          .search-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+            transition: 0.2s;
+          }
+          .search-input:focus {
+            border-color: var(--brand-primary);
+            background: rgba(255,255,255,0.08);
           }
 
           @media (max-width: 1200px) {
@@ -158,33 +192,68 @@ const Dashboard = () => {
 
       {/* MARKET SIDEBAR (DESKTOP) */}
       <div className="market-sidebar glass" style={{ padding: '16px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '0 8px' }}>
-          <BarChart3 size={18} color="var(--brand-primary)" />
-          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>MARKETS</span>
-        </div>
-        {markets.map(m => (
-          <div
-            key={m.symbol}
-            onClick={() => setSelectedSymbol(m.symbol)}
-            style={{
-              padding: '12px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              background: selectedSymbol === m.symbol ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-              border: selectedSymbol === m.symbol ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid transparent',
-              transition: '0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}
-          >
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: m.color }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{m.name}/USD</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{m.name}</div>
-            </div>
+        <div style={{ padding: '0 8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <BarChart3 size={18} color="var(--brand-primary)" />
+            <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>MARKETS</span>
           </div>
-        ))}
+          <input 
+            type="text" 
+            placeholder="Search Stocks or Crypto..." 
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+          {filteredMarkets.map(m => (
+            <div 
+              key={m.symbol}
+              onClick={() => setSelectedSymbol(m.symbol)}
+              style={{ 
+                padding: '10px 12px', 
+                borderRadius: '8px', 
+                cursor: 'pointer',
+                background: selectedSymbol === m.symbol ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                border: selectedSymbol === m.symbol ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid transparent',
+                transition: '0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+            >
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: m.color }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{m.symbol}/USD</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{m.name}</div>
+              </div>
+            </div>
+          ))}
+
+          {showGlobalSearch && (
+            <div 
+              onClick={() => setSelectedSymbol(searchTerm.toUpperCase())}
+              style={{ 
+                padding: '12px', 
+                borderRadius: '8px', 
+                cursor: 'pointer',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px dashed rgba(255,255,255,0.2)',
+                marginTop: '8px'
+              }}
+            >
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>NOT IN WATCHLIST</div>
+              <div style={{ fontWeight: 700, color: 'var(--brand-primary)' }}>Trade {searchTerm.toUpperCase()}/USD →</div>
+            </div>
+          )}
+
+          {filteredMarkets.length === 0 && !showGlobalSearch && (
+            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+              No markets found. Try searching for "AAPL" or "BTC".
+            </div>
+          )}
+        </div>
       </div>
 
       {/* CENTER COLUMN */}
