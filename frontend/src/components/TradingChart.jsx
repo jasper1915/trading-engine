@@ -11,11 +11,15 @@ const TradingChart = ({ symbol = 'BTC' }) => {
     
     // Map internal symbols to TradingView symbols
     const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
-    const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
+    const cleanSymbol = symbol.toUpperCase().split(':')[0]; // Get core symbol
+    const isCrypto = cryptoSymbols.includes(cleanSymbol);
     
-    let tvSymbol = isCrypto ? `BINANCE:${symbol}USDT` : `NSE:${symbol}`
+    // 🔥 Improved Logic: Try NSE for stocks, Binance for Crypto
+    let tvSymbol = isCrypto ? `BINANCE:${cleanSymbol}USDT` : `NSE:${cleanSymbol}`
+    
+    // If the user provided a full symbol like "NASDAQ:AAPL", use it directly
     if (symbol.includes(':')) {
-        tvSymbol = symbol; // Allow manual overrides like NASDAQ:AAPL
+        tvSymbol = symbol.toUpperCase();
     }
 
     script.innerHTML = JSON.stringify({
