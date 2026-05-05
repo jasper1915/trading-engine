@@ -23,14 +23,33 @@ const Dashboard = () => {
   const markets = [
     { symbol: 'RELIANCE', name: 'Reliance Industries', color: '#00539f' },
     { symbol: 'TCS', name: 'Tata Consultancy Services', color: '#1b4d9b' },
-    { symbol: 'ZOMATO', name: 'Zomato Ltd', color: '#cb202d' },
-    { symbol: 'HDFCBANK', name: 'HDFC Bank', color: '#004c8f' },
-    { symbol: 'ICICIBANK', name: 'ICICI Bank', color: '#f58220' },
-    { symbol: 'TATAMOTORS', name: 'Tata Motors', color: '#00a9e0' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd', color: '#004c8f' },
+    { symbol: 'ICICIBANK', name: 'ICICI Bank Ltd', color: '#f58220' },
     { symbol: 'INFY', name: 'Infosys Ltd', color: '#007cc3' },
-    { symbol: 'ADANIENT', name: 'Adani Enterprises', color: '#fdb913' },
+    { symbol: 'HINDUNILVR', name: 'Hindustan Unilever', color: '#004c8f' },
     { symbol: 'ITC', name: 'ITC Ltd', color: '#3156a3' },
+    { symbol: 'SBIN', name: 'State Bank of India', color: '#0068a8' },
+    { symbol: 'BHARTIARTL', name: 'Bharti Airtel', color: '#e40000' },
     { symbol: 'BAJFINANCE', name: 'Bajaj Finance', color: '#0072bc' },
+    { symbol: 'LICI', name: 'LIC of India', color: '#ffcc00' },
+    { symbol: 'KOTAKBANK', name: 'Kotak Mahindra Bank', color: '#ed1c24' },
+    { symbol: 'LT', name: 'Larsen & Toubro', color: '#ffcc00' },
+    { symbol: 'HCLTECH', name: 'HCL Technologies', color: '#007cc3' },
+    { symbol: 'AXISBANK', name: 'Axis Bank Ltd', color: '#97144d' },
+    { symbol: 'ASIANPAINT', name: 'Asian Paints', color: '#fdb913' },
+    { symbol: 'MARUTI', name: 'Maruti Suzuki', color: '#1b4d9b' },
+    { symbol: 'SUNPHARMA', name: 'Sun Pharma Industries', color: '#f15a24' },
+    { symbol: 'TITAN', name: 'Titan Company', color: '#004c8f' },
+    { symbol: 'ULTRACEMCO', name: 'UltraTech Cement', color: '#ffcc00' },
+    { symbol: 'WIPRO', name: 'Wipro Ltd', color: '#00a4e4' },
+    { symbol: 'ZOMATO', name: 'Zomato Ltd', color: '#cb202d' },
+    { symbol: 'TATAMOTORS', name: 'Tata Motors Ltd', color: '#00a9e0' },
+    { symbol: 'M&M', name: 'Mahindra & Mahindra', color: '#e31837' },
+    { symbol: 'ADANIENT', name: 'Adani Enterprises', color: '#fdb913' },
+    { symbol: 'JSWSTEEL', name: 'JSW Steel Ltd', color: '#00539f' },
+    { symbol: 'POWERGRID', name: 'Power Grid Corp', color: '#00a9e0' },
+    { symbol: 'NTPC', name: 'NTPC Ltd', color: '#007cc3' },
+    { symbol: 'ONGC', name: 'ONGC Ltd', color: '#ed1c24' },
     { symbol: 'BTC', name: 'Bitcoin', color: '#f59e0b' },
     { symbol: 'ETH', name: 'Ethereum', color: '#6366f1' },
     { symbol: 'SOL', name: 'Solana', color: '#14f195' },
@@ -235,16 +254,25 @@ const Dashboard = () => {
             <div 
               onClick={() => setSelectedSymbol(searchTerm.toUpperCase())}
               style={{ 
-                padding: '12px', 
-                borderRadius: '8px', 
+                padding: '16px', 
+                borderRadius: '12px', 
                 cursor: 'pointer',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px dashed rgba(255,255,255,0.2)',
-                marginTop: '8px'
+                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                marginTop: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
               }}
             >
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>NOT IN WATCHLIST</div>
-              <div style={{ fontWeight: 700, color: 'var(--brand-primary)' }}>Trade {searchTerm.toUpperCase()}/USD →</div>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--brand-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>
+                <TrendingUp size={16} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>GLOBAL MARKET</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{searchTerm.toUpperCase()}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--brand-primary)' }}>Trade on NSE/Binance →</div>
+              </div>
             </div>
           )}
 
