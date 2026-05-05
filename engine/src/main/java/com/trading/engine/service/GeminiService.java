@@ -50,39 +50,46 @@ public class GeminiService {
         List<PortfolioEntity> portfolio = portfolioService.getPortfolio(identifier);
         List<Trade> allTrades = orderService.getTrades();
         
-        BigDecimal currentPrice = allTrades.isEmpty() ? BigDecimal.ZERO : allTrades.get(allTrades.size() - 1).getPrice();
-
         // 3. Build the System Prompt
         StringBuilder context = new StringBuilder();
-        context.append("You are the Stockify AI Strategist, a world-class financial expert and general-purpose assistant. ");
+        context.append("You are the Stockify AI Strategist, a world-class financial expert. ");
         context.append("Current Date and Time: ").append(java.time.LocalDateTime.now()).append(". ");
-        context.append("Your mission is to help ").append(realName).append(" with anything they need—whether it's trading advice, general knowledge, or platform support. ");
-        context.append("Current Market Data: BTC is trading at $").append(currentPrice).append(". ");
+        context.append("Your mission is to help ").append(realName).append(" with trading advice, general knowledge, or platform support. ");
         
-        context.append("\nUser's Personal Data (ONLY share if they ask about their account): ");
-        context.append("Holdings: ");
+        context.append("\nMARKET OVERVIEW: ");
+        context.append("Platform supports Crypto (USD) and Indian Stocks (INR). ");
+        
+        context.append("\nUser's Personal Data: ");
+        context.append("Portfolio Holdings: ");
         for (PortfolioEntity p : portfolio) {
-            context.append(p.getAsset()).append(": ").append(p.getQuantity()).append(" (Avg Buy Price: $").append(p.getAvgPrice()).append("). ");
+            boolean isCrypto = List.of("BTC", "ETH", "SOL", "BNB", "XRP").contains(p.getAsset().toUpperCase());
+            String sym = isCrypto ? "$" : "₹";
+            context.append(p.getAsset()).append(": ").append(p.getQuantity())
+                   .append(" (Avg Buy: ").append(sym).append(p.getAvgPrice()).append("). ");
         }
 
-        context.append("\nRecent Activity: ");
+        context.append("\nRecent Activity (Last 5 Trades): ");
         int tradeCount = 0;
         for (Trade t : allTrades) {
             if (t.getBuyerUsername().equalsIgnoreCase(identifier) || t.getSellerUsername().equalsIgnoreCase(identifier)) {
                 String side = t.getBuyerUsername().equalsIgnoreCase(identifier) ? "BUY" : "SELL";
-                // Simplified formatting to avoid type issues
-                context.append("[").append(side).append(" ").append(t.getQuantity()).append(" BTC at $").append(t.getPrice()).append("], ");
+                boolean isCrypto = List.of("BTC", "ETH", "SOL", "BNB", "XRP").contains(t.getSymbol().toUpperCase());
+                String sym = isCrypto ? "$" : "₹";
+                
+                context.append("[").append(side).append(" ").append(t.getQuantity()).append(" ")
+                       .append(t.getSymbol()).append(" at ").append(sym).append(t.getPrice()).append("], ");
+                
                 tradeCount++;
-                if (tradeCount > 5) break;
+                if (tradeCount >= 5) break;
             }
         }
         
-        context.append("\nINSTRUCTIONS: ");
-        context.append("1. Answer ANY question the user asks (General knowledge, math, coding, etc.). ");
-        context.append("2. Use the 'User's Personal Data' to give personalized financial insights if relevant. ");
-        context.append("3. STRICT RULE: Only answer exactly what the user asks. Do not provide extra context, unsolicited advice, or general platform information unless directly relevant to the question. ");
-        context.append("4. Be extremely concise. If the user asks for a number, give only the number and a brief explanation. ");
-        context.append("5. If the user asks to perform a trade, explain that you are an information assistant and they should use the 'Trade' tab for security.");
+        context.append("\nSTRICT RULES FOR ABSOLUTE CONCISENESS: ");
+        context.append("1. Answer ANY question (General or App-specific) with MAXIMUM brevity. ");
+        context.append("2. ZERO CONVERSATIONAL FILLER: Never say 'Hello', 'Certainly', 'I understand', or 'As an AI'. Start immediately with the answer. ");
+        context.append("3. NO IRRELEVANT CONTENT: Provide only the facts or data requested. Do not add context unless it is essential for the answer's accuracy. ");
+        context.append("4. If the user asks for account data, provide ONLY the data. ");
+        context.append("5. Limit all responses to 1-2 sentences unless the user specifically asks for a detailed explanation.");
 
         // 4. Call Gemini API
         String url = String.format("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", model, apiKey);
