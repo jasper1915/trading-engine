@@ -12,13 +12,18 @@ const OrderEntry = ({ symbol = 'BTC' }) => {
   const [loading, setLoading] = useState(false)
   const { showNotification } = useNotification()
 
+  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
+  const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
+  const currencyLabel = isCrypto ? 'USD' : 'INR'
+  const currencySymbol = isCrypto ? '$' : '₹'
+
   const handlePlaceOrder = async () => {
     setLoading(true)
     try {
       await api.post('/orders', {
         type,
         symbol: symbol,
-        currency: 'USD',
+        currency: currencyLabel,
         price: orderType === 'MARKET' ? 0 : parseFloat(price),
         stopPrice: useTrigger ? parseFloat(stopPrice) : null,
         quantity: parseFloat(quantity),
@@ -126,7 +131,7 @@ const OrderEntry = ({ symbol = 'BTC' }) => {
               }} 
               placeholder="0.00"
             />
-            <span style={{ position: 'absolute', right: '12px', top: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>USD</span>
+            <span style={{ position: 'absolute', right: '12px', top: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{currencyLabel}</span>
           </div>
         </div>
 
@@ -164,7 +169,7 @@ const OrderEntry = ({ symbol = 'BTC' }) => {
                 style={{ width: '100%', paddingRight: '40px', borderColor: 'var(--brand-primary)' }} 
                 placeholder="Trigger price..."
               />
-              <span style={{ position: 'absolute', right: '12px', top: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>USD</span>
+              <span style={{ position: 'absolute', right: '12px', top: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{currencyLabel}</span>
             </div>
           </div>
         )}
@@ -172,7 +177,7 @@ const OrderEntry = ({ symbol = 'BTC' }) => {
         {/* Estimated Total */}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
           <span>Total</span>
-          <span>{orderType === 'MARKET' ? '≈ Best Market' : `${(price * quantity || 0).toFixed(2)} USD`}</span>
+          <span>{orderType === 'MARKET' ? '≈ Best Market' : `${currencySymbol}${(price * quantity || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} ${currencyLabel}`}</span>
         </div>
 
         <button 

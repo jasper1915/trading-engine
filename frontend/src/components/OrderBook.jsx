@@ -31,9 +31,9 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
                   // For Indian stocks, we simulate a realistic market price 
                   // In a real app, this would call a paid NSE API
                   const mockPrices = {
-                    'RELIANCE': 2945.50,
+                    'RELIANCE': 1464.15,
                     'TCS': 3912.20,
-                    'ZOMATO': 185.30,
+                    'ZOMATO': 192.30,
                     'HDFCBANK': 1524.00,
                     'TATAMOTORS': 985.40,
                     'INFY': 1488.00,
@@ -75,12 +75,16 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
     .sort((a, b) => b.price - a.price)
     .slice(0, 10)
 
+  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
+  const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
+  const currency = isCrypto ? 'USD' : 'INR'
+
   return (
     <div className="glass" style={{ borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Order Book ({name}/USD)</h3>
+      <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Order Book ({name}/{currency})</h3>
       
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '8px' }}>
-        <span>Price (USD)</span>
+        <span>Price ({currency})</span>
         <span style={{ textAlign: 'right' }}>Amount ({symbol})</span>
       </div>
 

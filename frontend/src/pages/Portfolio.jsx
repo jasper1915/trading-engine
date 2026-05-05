@@ -145,6 +145,9 @@ const Portfolio = () => {
             {holdings.length > 0 ? holdings.map((h, i) => {
               const price = getLastPrice(h.asset)
               const pnl = h.avgPrice > 0 ? (price - h.avgPrice) * h.quantity : 0;
+              const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA'].includes(h.asset.toUpperCase())
+              const sym = isCrypto ? '$' : '₹';
+              
               return (
               <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
                 <td data-label="Asset" style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -155,14 +158,14 @@ const Portfolio = () => {
                 </td>
                 <td data-label="Balance" style={{ padding: '20px 24px' }}>{h.quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</td>
                 <td data-label="Avg Price" style={{ padding: '20px 24px' }}>
-                  {h.avgPrice > 0 ? `$${h.avgPrice.toLocaleString()}` : 'N/A (Gifted)'}
+                  {h.avgPrice > 0 ? `${sym}${h.avgPrice.toLocaleString()}` : 'N/A (Gifted)'}
                 </td>
-                <td data-label="Current Price" style={{ padding: '20px 24px' }}>${price.toLocaleString()}</td>
+                <td data-label="Current Price" style={{ padding: '20px 24px' }}>{sym}{price.toLocaleString()}</td>
                 <td data-label="PnL" style={{ 
-                  padding: '20px 24px', 
-                  color: pnl >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)' 
-                }}>
-                  {pnl >= 0 ? '+' : ''}${pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                   padding: '20px 24px', 
+                   color: pnl >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)' 
+                 }}>
+                  {pnl >= 0 ? '+' : ''}{sym}{pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
               </tr>
             )}) : (

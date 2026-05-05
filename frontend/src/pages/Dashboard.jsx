@@ -57,17 +57,22 @@ const Dashboard = () => {
     { symbol: 'XRP', name: 'Ripple', color: '#23292f' }
   ]
 
+  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
+  const isCryptoAsset = cryptoSymbols.includes(selectedSymbol.toUpperCase())
+  const baseCurrency = isCryptoAsset ? 'USD' : 'INR'
+  const currencySymbol = isCryptoAsset ? '$' : '₹'
+
   const fetchBalances = async () => {
     setIsRefreshing(true)
     try {
-      const [usd, asset] = await Promise.all([
-        api.get('/wallet/balance?currency=USD'),
+      const [base, asset] = await Promise.all([
+        api.get(`/wallet/balance?currency=${baseCurrency}`),
         api.get(`/wallet/balance?currency=${selectedSymbol}`)
       ])
 
       setBalances({
-        USD_AVAILABLE: parseFloat(usd.data.available || 0),
-        USD_LOCKED: parseFloat(usd.data.locked || 0),
+        BASE_AVAILABLE: parseFloat(base.data.available || 0),
+        BASE_LOCKED: parseFloat(base.data.locked || 0),
         ASSET_AVAILABLE: parseFloat(asset.data.available || 0),
         ASSET_LOCKED: parseFloat(asset.data.locked || 0)
       })
@@ -272,7 +277,9 @@ const Dashboard = () => {
             >
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: m.color }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{m.symbol}/USD</div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>
+                  {m.symbol}/{['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(m.symbol) ? 'USD' : 'INR'}
+                </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{m.name}</div>
               </div>
             </div>
@@ -353,14 +360,14 @@ const Dashboard = () => {
           <div className="wallet-stats" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                <span>USD BALANCE</span>
-                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: ${(balances.USD_AVAILABLE + balances.USD_LOCKED).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span>{baseCurrency} BALANCE</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: {currencySymbol}{(balances.BASE_AVAILABLE + balances.BASE_LOCKED).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>${balances.USD_AVAILABLE.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{currencySymbol}{balances.BASE_AVAILABLE.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
                   <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
-                  {balances.USD_LOCKED > 0 && <span>• Locked: ${balances.USD_LOCKED.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
+                  {balances.BASE_LOCKED > 0 && <span>• Locked: {currencySymbol}{balances.BASE_LOCKED.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
                 </div>
               </div>
             </div>
