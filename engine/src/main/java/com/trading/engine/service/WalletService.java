@@ -22,13 +22,12 @@ public class WalletService {
                     newWallet.setUsername(finalUsername);
                     newWallet.setCurrency(currency);
                     
-                    // 💰 Welcome Bonus: Gift 1,000,000 USD or 100 BTC to new users
+                    // 💰 Welcome Bonus: Gift 1,000,000 USD or 1,000 units of any stock/crypto
                     if ("USD".equalsIgnoreCase(currency)) {
                         newWallet.setBalance(new BigDecimal("1000000"));
-                    } else if ("BTC".equalsIgnoreCase(currency)) {
-                        newWallet.setBalance(new BigDecimal("1000"));
                     } else {
-                        newWallet.setBalance(BigDecimal.ZERO);
+                        // Give 1,000 units of any of our major assets by default
+                        newWallet.setBalance(new BigDecimal("1000"));
                     }
                     
                     newWallet.setLocked(BigDecimal.ZERO);

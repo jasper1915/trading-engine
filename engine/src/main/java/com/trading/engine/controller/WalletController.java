@@ -49,14 +49,31 @@ public class WalletController {
         return "Withdrawn Successfully";
     }
 
-    // ✅ Claim 1,000 Test Coins for all 7 assets
+    // ✅ Claim 1,000 Test Units for all top assets
     @PostMapping("/claim-test-coins")
     public String claimTestCoins(Principal principal) {
         String username = principal.getName();
-        String[] assets = {"BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "DOT"};
+        // Top Stocks + Top Crypto
+        String[] assets = {
+            "RELIANCE", "TCS", "ZOMATO", "HDFCBANK", "TATAMOTORS", 
+            "INFY", "ADANIENT", "BTC", "ETH", "SOL"
+        };
+        
+        // Basic check to see if they already have Reliance (meaning they likely already claimed)
+        BigDecimal relianceBal = walletService.getBalance(username, "RELIANCE");
+        if (relianceBal.compareTo(new BigDecimal("1000")) >= 0) {
+            throw new RuntimeException("Gift already claimed! Check your portfolio.");
+        }
+
+        // Also give USD if they are broke
+        BigDecimal usdBal = walletService.getBalance(username, "USD");
+        if (usdBal.compareTo(BigDecimal.ZERO) == 0) {
+            walletService.deposit(username, new BigDecimal("1000000"), "USD");
+        }
+
         for (String asset : assets) {
             walletService.deposit(username, new BigDecimal("1000"), asset);
         }
-        return "Claimed 1,000 units of each asset successfully!";
+        return "Claimed 1,000 units of each asset + $1,000,000 successfully!";
     }
 }
