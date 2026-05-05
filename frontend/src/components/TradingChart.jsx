@@ -9,8 +9,8 @@ const TradingChart = ({ symbol = 'BTC' }) => {
     script.type = "text/javascript"
     script.async = true
     
-    // Map internal symbols to TradingView symbols
-    const tvSymbol = symbol === 'USD' ? 'FX_IDC:USDTUSD' : `BINANCE:${symbol}USDT`
+    // Map internal symbols to TradingView symbols (NSE for Indian Stocks)
+    const tvSymbol = `NSE:${symbol}`
 
     script.innerHTML = JSON.stringify({
       "autosize": true,

@@ -9,11 +9,11 @@ import { useNotification } from '../context/NotificationContext'
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('BTC')
-  const [balances, setBalances] = useState({ 
-    USD_AVAILABLE: 0, 
-    USD_LOCKED: 0, 
-    ASSET_AVAILABLE: 0, 
-    ASSET_LOCKED: 0 
+  const [balances, setBalances] = useState({
+    USD_AVAILABLE: 0,
+    USD_LOCKED: 0,
+    ASSET_AVAILABLE: 0,
+    ASSET_LOCKED: 0
   })
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isClaiming, setIsClaiming] = useState(false)
@@ -21,13 +21,13 @@ const Dashboard = () => {
   const { showNotification } = useNotification()
 
   const markets = [
-    { symbol: 'BTC', name: 'Bitcoin', color: '#f59e0b' },
-    { symbol: 'ETH', name: 'Ethereum', color: '#6366f1' },
-    { symbol: 'SOL', name: 'Solana', color: '#14f195' },
-    { symbol: 'XRP', name: 'Ripple', color: '#23292f' },
-    { symbol: 'ADA', name: 'Cardano', color: '#0033ad' },
-    { symbol: 'DOGE', name: 'Dogecoin', color: '#c2a633' },
-    { symbol: 'DOT', name: 'Polkadot', color: '#e6007a' }
+    { symbol: 'RELIANCE', name: 'Reliance Industries', color: '#00539f' },
+    { symbol: 'TCS', name: 'Tata Consultancy Services', color: '#1b4d9b' },
+    { symbol: 'ZOMATO', name: 'Zomato Ltd', color: '#cb202d' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank', color: '#004c8f' },
+    { symbol: 'TATAMOTORS', name: 'Tata Motors', color: '#00a9e0' },
+    { symbol: 'INFY', name: 'Infosys Ltd', color: '#007cc3' },
+    { symbol: 'ADANIENT', name: 'Adani Enterprises', color: '#fdb913' }
   ]
 
   const fetchBalances = async () => {
@@ -37,9 +37,9 @@ const Dashboard = () => {
         api.get('/wallet/balance?currency=USD'),
         api.get(`/wallet/balance?currency=${selectedSymbol}`)
       ])
-      
-      setBalances({ 
-        USD_AVAILABLE: parseFloat(usd.data.available || 0), 
+
+      setBalances({
+        USD_AVAILABLE: parseFloat(usd.data.available || 0),
         USD_LOCKED: parseFloat(usd.data.locked || 0),
         ASSET_AVAILABLE: parseFloat(asset.data.available || 0),
         ASSET_LOCKED: parseFloat(asset.data.locked || 0)
@@ -126,10 +126,10 @@ const Dashboard = () => {
       </style>
 
       {/* MOBILE MARKET SELECTOR */}
-      <div className="mobile-market-selector glass" style={{ 
-        display: 'none', 
-        padding: '12px', 
-        borderRadius: '8px', 
+      <div className="mobile-market-selector glass" style={{
+        display: 'none',
+        padding: '12px',
+        borderRadius: '8px',
         marginBottom: '12px',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -145,17 +145,17 @@ const Dashboard = () => {
 
       {showMarketMenu && (
         <div className="glass" style={{ position: 'fixed', top: '120px', left: '12px', right: '12px', zIndex: 100, borderRadius: '12px', padding: '16px' }}>
-           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Select Market</p>
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              {markets.map(m => (
-                <div key={m.symbol} onClick={() => { setSelectedSymbol(m.symbol); setShowMarketMenu(false); }} style={{ padding: '8px', borderRadius: '6px', background: selectedSymbol === m.symbol ? 'rgba(255,255,255,0.05)' : 'transparent', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
-                  {m.symbol}
-                </div>
-              ))}
-           </div>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Select Market</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {markets.map(m => (
+              <div key={m.symbol} onClick={() => { setSelectedSymbol(m.symbol); setShowMarketMenu(false); }} style={{ padding: '8px', borderRadius: '6px', background: selectedSymbol === m.symbol ? 'rgba(255,255,255,0.05)' : 'transparent', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                {m.symbol}
+              </div>
+            ))}
+          </div>
         </div>
       )}
-      
+
       {/* MARKET SIDEBAR (DESKTOP) */}
       <div className="market-sidebar glass" style={{ padding: '16px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '0 8px' }}>
@@ -163,12 +163,12 @@ const Dashboard = () => {
           <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>MARKETS</span>
         </div>
         {markets.map(m => (
-          <div 
+          <div
             key={m.symbol}
             onClick={() => setSelectedSymbol(m.symbol)}
-            style={{ 
-              padding: '12px', 
-              borderRadius: '8px', 
+            style={{
+              padding: '12px',
+              borderRadius: '8px',
               cursor: 'pointer',
               background: selectedSymbol === m.symbol ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               border: selectedSymbol === m.symbol ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid transparent',
@@ -189,56 +189,56 @@ const Dashboard = () => {
 
       {/* CENTER COLUMN */}
       <div className="main-content" style={{ display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
-        
+
         {/* WALLET BAR */}
         <div className="wallet-bar glass" style={{ padding: '16px 24px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Wallet size={20} style={{ color: 'var(--brand-primary)' }} />
-                <span style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 600 }}>Balances</span>
-             </div>
-             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button onClick={handleClaimCoins} disabled={isClaiming} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Gift size={14} /> {isClaiming ? '...' : 'Gift'}
-                </button>
-                <button onClick={handleManualDeposit} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                  + $10k
-                </button>
-                <button onClick={fetchBalances} disabled={isRefreshing} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  {isRefreshing ? '...' : 'Refresh'}
-                </button>
-             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Wallet size={20} style={{ color: 'var(--brand-primary)' }} />
+              <span style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 600 }}>Balances</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button onClick={handleClaimCoins} disabled={isClaiming} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Gift size={14} /> {isClaiming ? '...' : 'Gift'}
+              </button>
+              <button onClick={handleManualDeposit} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                + $10k
+              </button>
+              <button onClick={fetchBalances} disabled={isRefreshing} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                {isRefreshing ? '...' : 'Refresh'}
+              </button>
+            </div>
           </div>
 
           <div className="wallet-stats" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                 <span>USD BALANCE</span>
-                 <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: ${(balances.USD_AVAILABLE + balances.USD_LOCKED).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-               </div>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>${balances.USD_AVAILABLE.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
-                    <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
-                    {balances.USD_LOCKED > 0 && <span>• Locked: ${balances.USD_LOCKED.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>}
-                  </div>
-               </div>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>USD BALANCE</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: ${(balances.USD_AVAILABLE + balances.USD_LOCKED).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>${balances.USD_AVAILABLE.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
+                  <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
+                  {balances.USD_LOCKED > 0 && <span>• Locked: ${balances.USD_LOCKED.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
+                </div>
+              </div>
             </div>
 
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-               <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                 <span>{selectedSymbol} BALANCE</span>
-                 <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: {(balances.ASSET_AVAILABLE + balances.ASSET_LOCKED).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
-               </div>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ fontSize: '1.2rem', fontWeight: 700, color: markets.find(m => m.symbol === selectedSymbol)?.color || '#fff' }}>
-                    {balances.ASSET_AVAILABLE.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
-                    <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
-                    {balances.ASSET_LOCKED > 0 && <span>• Locked: {balances.ASSET_LOCKED.toLocaleString(undefined, {maximumFractionDigits: 4})}</span>}
-                  </div>
-               </div>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>{selectedSymbol} BALANCE</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Total: {(balances.ASSET_AVAILABLE + balances.ASSET_LOCKED).toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: markets.find(m => m.symbol === selectedSymbol)?.color || '#fff' }}>
+                  {balances.ASSET_AVAILABLE.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
+                  <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>AVAILABLE</span>
+                  {balances.ASSET_LOCKED > 0 && <span>• Locked: {balances.ASSET_LOCKED.toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -257,9 +257,9 @@ const Dashboard = () => {
       {/* RIGHT COLUMN */}
       <div className="right-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
         <div style={{ flex: 1, minHeight: '300px' }}>
-          <OrderBook 
-            symbol={selectedSymbol} 
-            name={markets.find(m => m.symbol === selectedSymbol)?.name || selectedSymbol} 
+          <OrderBook
+            symbol={selectedSymbol}
+            name={markets.find(m => m.symbol === selectedSymbol)?.name || selectedSymbol}
           />
         </div>
         <div style={{ flexShrink: 0 }}>

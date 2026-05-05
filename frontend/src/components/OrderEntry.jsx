@@ -132,7 +132,7 @@ const OrderEntry = ({ symbol = 'BTC' }) => {
 
         {/* Quantity Input */}
         <div>
-          <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '4px' }}>Amount</label>
+          <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '4px' }}>Qty</label>
           <div style={{ position: 'relative' }}>
             <input 
               type="number" 
