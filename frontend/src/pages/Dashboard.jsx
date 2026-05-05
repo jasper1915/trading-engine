@@ -113,8 +113,6 @@ const Dashboard = () => {
 
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [searchTerm, setSearchTerm] = useState('')
-
   // Map common names to official NSE Tickers
   const tickerMap = {
     'ADANI': 'ADANIENT',
