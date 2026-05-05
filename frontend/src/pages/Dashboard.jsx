@@ -93,11 +93,13 @@ const Dashboard = () => {
   const handleClaimCoins = async () => {
     setIsClaiming(true)
     try {
-      await api.post('/wallet/claim-test-coins')
+      const response = await api.post('/wallet/claim-test-coins')
       showNotification('Gift Reset! Balances set to $1,000,000 and 1,000 units each. 🎁', 'success')
       fetchBalances()
     } catch (err) {
-      showNotification(err.response?.data?.message || 'Claim failed.', 'warning')
+      console.error('Gift claim failed:', err)
+      const msg = err.response?.data?.message || err.message || 'Claim failed.'
+      showNotification(msg, 'warning')
     } finally {
       setIsClaiming(false)
     }

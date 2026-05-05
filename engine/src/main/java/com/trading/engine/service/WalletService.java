@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class WalletService {
 
     @Autowired
@@ -15,23 +16,20 @@ public class WalletService {
 
     private WalletEntity getOrCreateWallet(String username, String currency) {
         String finalUsername = username != null ? username.toLowerCase() : null;
-        return walletRepository.findByUsernameAndCurrency(finalUsername, currency)
+        WalletEntity wallet = walletRepository.findByUsernameAndCurrency(finalUsername, currency)
                 .orElseGet(() -> {
                     WalletEntity newWallet = new WalletEntity();
                     newWallet.setId(UUID.randomUUID().toString());
                     newWallet.setUsername(finalUsername);
                     newWallet.setCurrency(currency);
-                    
-                    // 💰 Welcome Bonus: Gift 1,000,000 USD and 1,000 units of any stock/crypto
-                    if ("USD".equalsIgnoreCase(currency)) {
-                        newWallet.setBalance(new BigDecimal("1000000"));
-                    } else {
-                        newWallet.setBalance(new BigDecimal("1000"));
-                    }
-                    
+                    newWallet.setBalance(BigDecimal.ZERO);
                     newWallet.setLocked(BigDecimal.ZERO);
                     return walletRepository.save(newWallet);
                 });
+        
+        if (wallet.getBalance() == null) wallet.setBalance(BigDecimal.ZERO);
+        if (wallet.getLocked() == null) wallet.setLocked(BigDecimal.ZERO);
+        return wallet;
     }
 
     // ✅ Deposit
@@ -45,8 +43,8 @@ public class WalletService {
     public BigDecimal getBalance(String username, String currency) {
         WalletEntity wallet = getOrCreateWallet(username, currency);
         
-        // 🎁 Welcome Bonus: Gift 1,000,000 USD or 1,000 units of asset if balance is exactly 0
-        if (wallet.getBalance().compareTo(BigDecimal.ZERO) == 0) {
+        // 🎁 Welcome Bonus: Gift 1,000,000 USD or 1,000 units of asset if balance is <= 0
+        if (wallet.getBalance() == null || wallet.getBalance().compareTo(BigDecimal.ZERO) <= 0) {
             if ("USD".equalsIgnoreCase(currency)) {
                 wallet.setBalance(new BigDecimal("1000000"));
             } else {

@@ -52,10 +52,13 @@ public class WalletController {
     // ✅ Claim 1,000 Test Units for all top assets
     @PostMapping("/claim-test-coins")
     public String claimTestCoins(Principal principal) {
+        if (principal == null) {
+            throw new RuntimeException("User not authenticated");
+        }
         String username = principal.getName();
         System.out.println("🎁 [WalletController] Reset request for user: " + username);
 
-        // All Markets from Dashboard.jsx
+        // Core assets to ensure speed and stability
         String[] assets = {
             "RELIANCE", "TCS", "ZOMATO", "HDFCBANK", "TATAMOTORS", 
             "INFY", "ADANIENT", "BTC", "ETH", "SOL", "HINDUNILVR", 
@@ -66,15 +69,20 @@ public class WalletController {
             "NTPC", "ONGC", "BNB", "XRP"
         };
         
-        System.out.println("DEBUG: [WalletController] Setting $1,000,000 USD...");
-        walletService.setGiftBalances(username, "USD");
+        try {
+            System.out.println("DEBUG: [WalletController] Setting $1,000,000 USD...");
+            walletService.setGiftBalances(username, "USD");
 
-        for (String asset : assets) {
-            System.out.println("DEBUG: [WalletController] Setting 1,000 units of " + asset);
-            walletService.setGiftBalances(username, asset);
+            for (String asset : assets) {
+                walletService.setGiftBalances(username, asset);
+            }
+            
+            System.out.println("✅ [WalletController] Reset successful for " + username);
+            return "Balances reset to $1,000,000 USD and 1,000 units of each asset successfully!";
+        } catch (Exception e) {
+            System.err.println("❌ [WalletController] Reset failed: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to reset balances: " + e.getMessage());
         }
-
-        System.out.println("✅ [WalletController] Reset successful for " + username);
-        return "Balances reset to $1,000,000 USD and 1,000 units of each asset successfully!";
     }
 }
