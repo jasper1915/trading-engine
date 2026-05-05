@@ -79,10 +79,6 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
     .sort((a, b) => b.price - a.price)
     .slice(0, 10)
 
-  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
-  const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
-  const currency = isCrypto ? 'USD' : 'INR'
-
   return (
     <div className="glass" style={{ borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
       <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Order Book ({name}/{currency})</h3>
