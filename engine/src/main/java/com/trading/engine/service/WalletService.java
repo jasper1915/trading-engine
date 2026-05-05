@@ -22,11 +22,10 @@ public class WalletService {
                     newWallet.setUsername(finalUsername);
                     newWallet.setCurrency(currency);
                     
-                    // 💰 Welcome Bonus: Gift 1,000,000 USD or 1,000 units of any stock/crypto
+                    // 💰 Welcome Bonus: Gift 1,000,000 USD and 1,000 units of any stock/crypto
                     if ("USD".equalsIgnoreCase(currency)) {
                         newWallet.setBalance(new BigDecimal("1000000"));
                     } else {
-                        // Give 1,000 units of any of our major assets by default
                         newWallet.setBalance(new BigDecimal("1000"));
                     }
                     
@@ -46,15 +45,14 @@ public class WalletService {
     public BigDecimal getBalance(String username, String currency) {
         WalletEntity wallet = getOrCreateWallet(username, currency);
         
-        // 🎁 Welcome Bonus: Gift 1,000,000 USD or 100 BTC if balance is exactly 0
+        // 🎁 Welcome Bonus: Gift 1,000,000 USD or 1,000 units of asset if balance is exactly 0
         if (wallet.getBalance().compareTo(BigDecimal.ZERO) == 0) {
             if ("USD".equalsIgnoreCase(currency)) {
                 wallet.setBalance(new BigDecimal("1000000"));
-                walletRepository.save(wallet);
-            } else if ("BTC".equalsIgnoreCase(currency)) {
+            } else {
                 wallet.setBalance(new BigDecimal("1000"));
-                walletRepository.save(wallet);
             }
+            walletRepository.save(wallet);
         }
         
         return wallet.getBalance();
@@ -97,5 +95,16 @@ public class WalletService {
 
     public BigDecimal getLockedBalance(String username, String currency) {
         return getOrCreateWallet(username, currency).getLocked();
+    }
+
+    // 🎁 RESET BALANCES
+    public void setGiftBalances(String username, String currency) {
+        WalletEntity wallet = getOrCreateWallet(username, currency);
+        if ("USD".equalsIgnoreCase(currency)) {
+            wallet.setBalance(new BigDecimal("1000000"));
+        } else {
+            wallet.setBalance(new BigDecimal("1000"));
+        }
+        walletRepository.save(wallet);
     }
 }

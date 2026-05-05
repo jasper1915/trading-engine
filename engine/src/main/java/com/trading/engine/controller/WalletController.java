@@ -53,27 +53,28 @@ public class WalletController {
     @PostMapping("/claim-test-coins")
     public String claimTestCoins(Principal principal) {
         String username = principal.getName();
-        // Top Stocks + Top Crypto
+        System.out.println("🎁 [WalletController] Reset request for user: " + username);
+
+        // All Markets from Dashboard.jsx
         String[] assets = {
             "RELIANCE", "TCS", "ZOMATO", "HDFCBANK", "TATAMOTORS", 
-            "INFY", "ADANIENT", "BTC", "ETH", "SOL"
+            "INFY", "ADANIENT", "BTC", "ETH", "SOL", "HINDUNILVR", 
+            "BAJFINANCE", "ICICIBANK", "ITC", "SBIN", "BHARTIARTL", 
+            "LICI", "KOTAKBANK", "LT", "HCLTECH", "AXISBANK", 
+            "ASIANPAINT", "MARUTI", "SUNPHARMA", "TITAN", 
+            "ULTRACEMCO", "WIPRO", "M&M", "JSWSTEEL", "POWERGRID", 
+            "NTPC", "ONGC", "BNB", "XRP"
         };
         
-        // Basic check to see if they already have Reliance (meaning they likely already claimed)
-        BigDecimal relianceBal = walletService.getBalance(username, "RELIANCE");
-        if (relianceBal.compareTo(new BigDecimal("1000")) >= 0) {
-            throw new RuntimeException("Gift already claimed! Check your portfolio.");
-        }
-
-        // Also give USD if they are broke
-        BigDecimal usdBal = walletService.getBalance(username, "USD");
-        if (usdBal.compareTo(BigDecimal.ZERO) == 0) {
-            walletService.deposit(username, new BigDecimal("1000000"), "USD");
-        }
+        System.out.println("DEBUG: [WalletController] Setting $1,000,000 USD...");
+        walletService.setGiftBalances(username, "USD");
 
         for (String asset : assets) {
-            walletService.deposit(username, new BigDecimal("1000"), asset);
+            System.out.println("DEBUG: [WalletController] Setting 1,000 units of " + asset);
+            walletService.setGiftBalances(username, asset);
         }
-        return "Claimed 1,000 units of each asset + $1,000,000 successfully!";
+
+        System.out.println("✅ [WalletController] Reset successful for " + username);
+        return "Balances reset to $1,000,000 USD and 1,000 units of each asset successfully!";
     }
 }

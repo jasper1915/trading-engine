@@ -94,9 +94,7 @@ const Dashboard = () => {
     setIsClaiming(true)
     try {
       await api.post('/wallet/claim-test-coins')
-      showNotification('Gift claimed! $1,000,000 and stocks added. 🎁', 'success')
-      setHasClaimed(true)
-      localStorage.setItem('giftClaimed', 'true')
+      showNotification('Gift Reset! Balances set to $1,000,000 and 1,000 units each. 🎁', 'success')
       fetchBalances()
     } catch (err) {
       showNotification(err.response?.data?.message || 'Claim failed.', 'warning')
@@ -325,21 +323,21 @@ const Dashboard = () => {
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button 
                 onClick={handleClaimCoins} 
-                disabled={isClaiming || hasClaimed} 
+                disabled={isClaiming} 
                 style={{ 
                   padding: '4px 12px', 
                   borderRadius: '4px', 
                   fontSize: '0.8rem', 
-                  color: hasClaimed ? '#94a3b8' : '#f59e0b', 
-                  background: hasClaimed ? 'rgba(148,163,184,0.1)' : 'rgba(245,158,11,0.1)', 
-                  border: hasClaimed ? '1px solid rgba(148,163,184,0.2)' : '1px solid rgba(245,158,11,0.2)', 
+                  color: '#f59e0b', 
+                  background: 'rgba(245,158,11,0.1)', 
+                  border: '1px solid rgba(245,158,11,0.2)', 
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: '6px',
-                  cursor: hasClaimed ? 'default' : 'pointer'
+                  cursor: 'pointer'
                 }}
               >
-                <Gift size={14} /> {isClaiming ? '...' : (hasClaimed ? 'Claimed' : 'Gift')}
+                <Gift size={14} /> {isClaiming ? '...' : 'Gift Reset'}
               </button>
               <button onClick={handleManualDeposit} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
                 + $10k

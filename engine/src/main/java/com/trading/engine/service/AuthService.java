@@ -89,8 +89,16 @@ public class AuthService {
 
         walletRepository.save(usdWallet);
 
-        // 💰 create initial crypto wallets with 1000 units each
-        String[] assets = {"BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "DOT"};
+        // 💰 create initial crypto/stock wallets with 1,000 units each
+        String[] assets = {
+            "RELIANCE", "TCS", "ZOMATO", "HDFCBANK", "TATAMOTORS", 
+            "INFY", "ADANIENT", "BTC", "ETH", "SOL", "HINDUNILVR", 
+            "BAJFINANCE", "ICICIBANK", "ITC", "SBIN", "BHARTIARTL", 
+            "LICI", "KOTAKBANK", "LT", "HCLTECH", "AXISBANK", 
+            "ASIANPAINT", "MARUTI", "SUNPHARMA", "TITAN", 
+            "ULTRACEMCO", "WIPRO", "M&M", "JSWSTEEL", "POWERGRID", 
+            "NTPC", "ONGC", "BNB", "XRP"
+        };
         for (String asset : assets) {
             WalletEntity wallet = new WalletEntity();
             wallet.setId(UUID.randomUUID().toString());
