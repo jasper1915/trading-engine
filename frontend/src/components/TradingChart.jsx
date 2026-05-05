@@ -6,7 +6,9 @@ const TradingChart = ({ symbol = 'BTC' }) => {
   const cleanSymbol = symbol.toUpperCase().split(':')[0];
   const isCrypto = cryptoSymbols.includes(cleanSymbol);
   
-  let tvSymbol = isCrypto ? `BINANCE:${cleanSymbol}USDT` : `NSE:${cleanSymbol}`
+  // 🔥 AUTO-RESOLVE: Let TradingView find the best source for Stocks
+  let tvSymbol = isCrypto ? `BINANCE:${cleanSymbol}USDT` : `${cleanSymbol}`
+  
   if (symbol.includes(':')) {
     tvSymbol = symbol.toUpperCase();
   }
