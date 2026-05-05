@@ -121,30 +121,42 @@ const OrderTabs = ({ symbol = 'BTC', markets = [] }) => {
           </thead>
           <tbody>
             {activeTab === 'active' ? (
-              activeOrders.map((o, i) => (
-                <tr key={i}>
-                  <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(o.timestamp).toLocaleTimeString()}</td>
-                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{getMarketName(o.symbol)}/USD</td>
-                  <td data-label="Side" style={{ padding: '12px 20px', color: o.type === 'BUY' ? 'var(--brand-success)' : 'var(--brand-danger)', fontWeight: 700 }}>{o.type}</td>
-                  <td data-label="Price" style={{ padding: '12px 20px' }}>${o.price.toLocaleString()}</td>
-                  <td data-label="Amount" style={{ padding: '12px 20px' }}>{o.quantity}</td>
-                  <td data-label="Action" style={{ padding: '12px 20px' }}>
-                    <button onClick={() => handleCancel(o.orderId)} style={{ color: 'var(--brand-danger)', background: 'none', padding: 0 }}>
-                      <XCircle size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))
+              activeOrders.map((o, i) => {
+                const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(o.symbol?.toUpperCase());
+                const currency = o.currency || (isCrypto ? 'USD' : 'INR');
+                const symbolChar = currency === 'USD' ? '$' : '₹';
+                
+                return (
+                  <tr key={i}>
+                    <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(o.timestamp).toLocaleTimeString()}</td>
+                    <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{getMarketName(o.symbol)}/{currency}</td>
+                    <td data-label="Side" style={{ padding: '12px 20px', color: o.type === 'BUY' ? 'var(--brand-success)' : 'var(--brand-danger)', fontWeight: 700 }}>{o.type}</td>
+                    <td data-label="Price" style={{ padding: '12px 20px' }}>{symbolChar}{o.price.toLocaleString()}</td>
+                    <td data-label="Amount" style={{ padding: '12px 20px' }}>{o.quantity}</td>
+                    <td data-label="Action" style={{ padding: '12px 20px' }}>
+                      <button onClick={() => handleCancel(o.orderId)} style={{ color: 'var(--brand-danger)', background: 'none', padding: 0 }}>
+                        <XCircle size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })
             ) : (
-              [...tradeHistory].reverse().map((t, i) => (
-                <tr key={i}>
-                  <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleTimeString()}</td>
-                  <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{getMarketName(t.symbol || symbol)}/USD</td>
-                  <td data-label="Side" style={{ padding: '12px 20px', color: 'var(--brand-success)', fontWeight: 700 }}>FILLED</td>
-                  <td data-label="Price" style={{ padding: '12px 20px' }}>${t.price.toLocaleString()}</td>
-                  <td data-label="Amount" style={{ padding: '12px 20px' }}>{t.quantity}</td>
-                </tr>
-              ))
+              [...tradeHistory].reverse().map((t, i) => {
+                const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(t.symbol?.toUpperCase() || symbol.toUpperCase());
+                const currency = isCrypto ? 'USD' : 'INR';
+                const symbolChar = currency === 'USD' ? '$' : '₹';
+                
+                return (
+                  <tr key={i}>
+                    <td data-label="Date" style={{ padding: '12px 20px', color: 'var(--text-secondary)' }}>{new Date(t.timestamp).toLocaleTimeString()}</td>
+                    <td data-label="Pair" style={{ padding: '12px 20px', fontWeight: 600 }}>{getMarketName(t.symbol || symbol)}/{currency}</td>
+                    <td data-label="Side" style={{ padding: '12px 20px', color: 'var(--brand-success)', fontWeight: 700 }}>FILLED</td>
+                    <td data-label="Price" style={{ padding: '12px 20px' }}>{symbolChar}{t.price.toLocaleString()}</td>
+                    <td data-label="Amount" style={{ padding: '12px 20px' }}>{t.quantity}</td>
+                  </tr>
+                )
+              })
             )}
             {((activeTab === 'active' && activeOrders.length === 0) || (activeTab === 'history' && tradeHistory.length === 0)) && (
               <tr>

@@ -5,9 +5,13 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
   const [data, setData] = useState({ bids: {}, asks: {} })
   const [lastPrice, setLastPrice] = useState(0)
 
+  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
+  const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
+  const currency = isCrypto ? 'USD' : 'INR'
+
   const fetchDepth = async () => {
     try {
-      const res = await api.get(`/orders/depth?symbol=${symbol}&currency=USD`)
+      const res = await api.get(`/orders/depth?symbol=${symbol}&currency=${currency}`)
       setData(res.data)
       
       // Update last price from recent trades if available
