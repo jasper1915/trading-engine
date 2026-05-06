@@ -22,38 +22,24 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
       if (symbolTrades.length > 0) {
           setLastPrice(symbolTrades[symbolTrades.length - 1].price)
       } else {
-          // 🔥 SMART FALLBACK: Fetch real market price based on type
+          // 🚀 LIVE SYNC: Fetch real market price from our backend proxy
           try {
-              const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
-              const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
-              
-              if (isCrypto) {
-                  const binanceRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}USDT`)
-                  const bData = await binanceRes.json()
-                  if (bData.price) setLastPrice(parseFloat(bData.price))
+              const liveRes = await api.get(`/market/price?symbol=${symbol}`)
+              if (liveRes.data && liveRes.data.price > 0) {
+                  setLastPrice(liveRes.data.price)
               } else {
-                  // For Indian stocks, we simulate a realistic market price 
-                  // In a real app, this would call a paid NSE API
+                  // Final Fallback: Smart Mock
                   const mockPrices = {
-                    'RELIANCE': 1464.15,
-                    'TCS': 3912.20,
-                    'ZOMATO': 192.30,
-                    'HDFCBANK': 1524.00,
-                    'TATAMOTORS': 985.40,
-                    'INFY': 1488.00,
-                    'ADANIENT': 3145.20,
-                    'HINDUNILVR': 2324.00,
-                    'ICICIBANK': 1085.00,
-                    'ITC': 425.00,
-                    'BAJFINANCE': 6850.00
+                    'RELIANCE': 2985.15, 'TCS': 3912.20, 'ZOMATO': 192.30, 'HDFCBANK': 1524.00,
+                    'TATAMOTORS': 985.40, 'INFY': 1488.00, 'ADANIENT': 3145.20, 'HINDUNILVR': 2324.00,
+                    'ICICIBANK': 1085.00, 'ITC': 425.00, 'BAJFINANCE': 6850.00, 'SUZLON': 54.90,
+                    'SBIN': 825.00, 'BHARTIARTL': 1290.00, 'LICINDIA': 950.00
                   }
-                  const price = mockPrices[symbol.toUpperCase()] || 100.00
-                  // Add a tiny random fluctuation to make it look alive
-                  const fluctuation = (Math.random() - 0.5) * 2
-                  setLastPrice(price + fluctuation)
+                  let price = mockPrices[symbol.toUpperCase()] || 100.0
+                  setLastPrice(price)
               }
           } catch (err) {
-              console.warn('Could not fetch market price, using default')
+              console.warn('Market sync failed')
           }
       }
     } catch (err) {
