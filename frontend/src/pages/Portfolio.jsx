@@ -33,10 +33,20 @@ const Portfolio = () => {
   }, [])
 
   // Helper to get last price for a specific asset
+  const [usdInrRate, setUsdInrRate] = useState(83.0)
   const [livePrices, setLivePrices] = useState({})
 
   const fetchLivePrices = async () => {
     const prices = {}
+    
+    // Fetch USD/INR Rate first
+    try {
+        const rateRes = await api.get('/api/market/price?symbol=USDINR')
+        if (rateRes.data && rateRes.data.price > 0) {
+            setUsdInrRate(rateRes.data.price)
+        }
+    } catch (e) { console.error('USDINR rate fetch failed') }
+
     for (const h of holdings) {
         try {
             const res = await api.get(`/api/market/price?symbol=${h.asset}`)
@@ -64,20 +74,18 @@ const Portfolio = () => {
     return holding ? holding.avgPrice : 0
   }
 
-  const USD_INR_RATE = 83.0; // Standard conversion rate for estimation
-
   const totalValueUSD = holdings.reduce((sum, h) => {
       const price = getLastPrice(h.asset) || h.avgPrice || 1.0;
       const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
       const valueInBase = h.quantity * price
-      return sum + (isCrypto ? valueInBase : (valueInBase / USD_INR_RATE))
+      return sum + (isCrypto ? valueInBase : (valueInBase / usdInrRate))
   }, 0)
 
   const totalInvestedUSD = holdings.reduce((sum, h) => {
       const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
       // Gifted assets cost 0
       const invested = h.avgPrice > 0 ? (h.quantity * h.avgPrice) : 0
-      return sum + (isCrypto ? invested : (invested / USD_INR_RATE))
+      return sum + (isCrypto ? invested : (invested / usdInrRate))
   }, 0)
 
   // Total PnL is now a simple, honest subtraction
@@ -154,7 +162,7 @@ const Portfolio = () => {
             </tr>
           </thead>
           <tbody>
-            {holdings.length > 0 ? holdings.filter(h => h.quantity > 0).map((h, i) => {
+            {holdings.length > 0 ? holdings.filter(h => h.quantity > 0 && h.asset !== 'USD' && h.asset !== 'INR').map((h, i) => {
               const price = getLastPrice(h.asset)
               const pnl = h.avgPrice > 0 ? (price - h.avgPrice) * h.quantity : 0;
               const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA'].includes(h.asset.toUpperCase())
