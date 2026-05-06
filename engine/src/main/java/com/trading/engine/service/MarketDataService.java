@@ -35,7 +35,9 @@ public class MarketDataService {
                 Map<String, Object> response = responseEntity.getBody();
                 
                 if (response != null && response.containsKey("price")) {
-                    return Double.parseDouble(response.get("price").toString());
+                    double cryptoPrice = Double.parseDouble(response.get("price").toString());
+                    System.out.println("✅ [MarketDataService] Crypto Price for " + symbol + ": " + cryptoPrice);
+                    return cryptoPrice;
                 }
             } 
             
@@ -53,7 +55,6 @@ public class MarketDataService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-            headers.set("Accept", "application/json");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
@@ -75,7 +76,9 @@ public class MarketDataService {
                     }
                     
                     if (price instanceof Number) {
-                        return ((Number) price).doubleValue();
+                        double stockPrice = ((Number) price).doubleValue();
+                        System.out.println("✅ [MarketDataService] Yahoo Price for: " + stockPrice);
+                        return stockPrice;
                     }
                 }
             }

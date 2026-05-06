@@ -47,6 +47,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/api/market/**").permitAll() // 📈 Public Prices
             .anyRequest().authenticated()
         )
 
