@@ -23,7 +23,8 @@ public class MarketDataService {
             String yahooUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol.toUpperCase() + ".NS?interval=1m&range=1d";
             
             HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            headers.set("Accept", "application/json");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<Map> responseEntity = restTemplate.exchange(yahooUrl, HttpMethod.GET, entity, Map.class);
@@ -33,10 +34,21 @@ public class MarketDataService {
                 Map<String, Object> chart = (Map<String, Object>) response.get("chart");
                 List<Map<String, Object>> result = (List<Map<String, Object>>) chart.get("result");
                 if (result != null && !result.isEmpty()) {
-                    Map<String, Object> meta = (Map<String, Object>) result.get(0).get("meta");
-                    Object priceObj = meta.get("regularMarketPrice");
-                    if (priceObj instanceof Number) {
-                        return ((Number) priceObj).doubleValue();
+                    Map<String, Object> res0 = result.get(0);
+                    Map<String, Object> meta = (Map<String, Object>) res0.get("meta");
+                    
+                    // Try regularMarketPrice first
+                    Object price = meta.get("regularMarketPrice");
+                    if (price == null) {
+                        // Fallback to the latest price in the indicators
+                        Map<String, Object> indicators = (Map<String, Object>) res0.get("indicators");
+                        List<Map<String, Object>> quote = (List<Map<String, Object>>) indicators.get("quote");
+                        List<Double> close = (List<Double>) quote.get(0).get("close");
+                        price = close.get(close.size() - 1);
+                    }
+                    
+                    if (price instanceof Number) {
+                        return ((Number) price).doubleValue();
                     }
                 }
             }

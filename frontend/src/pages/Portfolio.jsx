@@ -67,28 +67,21 @@ const Portfolio = () => {
   const USD_INR_RATE = 83.0; // Standard conversion rate for estimation
 
   const totalValueUSD = holdings.reduce((sum, h) => {
-      const price = getLastPrice(h.asset)
+      const price = getLastPrice(h.asset) || h.avgPrice || 1.0;
       const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
       const valueInBase = h.quantity * price
-      // If it's a stock (INR), convert to USD for the total summary
       return sum + (isCrypto ? valueInBase : (valueInBase / USD_INR_RATE))
-  }, 0)
-
-  const totalPnLUSD = holdings.reduce((sum, h) => {
-      const price = getLastPrice(h.asset)
-      if (h.avgPrice > 0) {
-          const pnl = (price - h.avgPrice) * h.quantity
-          const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
-          return sum + (isCrypto ? pnl : (pnl / USD_INR_RATE))
-      }
-      return sum
   }, 0)
 
   const totalInvestedUSD = holdings.reduce((sum, h) => {
       const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
-      const invested = h.quantity * h.avgPrice
+      // Gifted assets cost 0
+      const invested = h.avgPrice > 0 ? (h.quantity * h.avgPrice) : 0
       return sum + (isCrypto ? invested : (invested / USD_INR_RATE))
   }, 0)
+
+  // Total PnL is now a simple, honest subtraction
+  const totalPnLUSD = totalValueUSD - totalInvestedUSD;
 
   return (
     <div className="portfolio-container" style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -136,9 +129,9 @@ const Portfolio = () => {
             marginTop: '12px' 
           }}>
             {totalPnLUSD >= 0 ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
-            {totalPnLUSD >= 0 ? '+' : ''}${Math.abs(totalPnLUSD).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {totalPnLUSD >= 0 ? '+' : '-'}${Math.abs(totalPnLUSD).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             <span style={{ fontSize: '0.8rem', opacity: 0.8, marginLeft: '4px' }}>
-              ({((totalPnLUSD / (totalInvestedUSD || 1)) * 100).toFixed(2)}%)
+              ({((totalPnLUSD / (totalInvestedUSD || totalValueUSD || 1)) * 100).toFixed(2)}%)
             </span>
           </div>
         </div>
