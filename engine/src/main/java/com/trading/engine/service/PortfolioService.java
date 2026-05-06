@@ -68,28 +68,30 @@ public class PortfolioService {
     public List<PortfolioEntity> getPortfolio(String username) {
         List<PortfolioEntity> holdings = repo.findByUsername(username);
         
-        // 🔄 Sync BTC specifically (or we could loop through all currencies)
-        BigDecimal actualBtc = walletService.getBalance(username, "BTC");
+        // 🔄 Sync all major assets from wallet
+        String[] syncAssets = {"BTC", "ETH", "SOL", "RELIANCE", "TCS", "ZOMATO", "HDFCBANK", "TATAMOTORS", "SUZLON", "ICICIBANK"};
         
-        PortfolioEntity btcHolding = holdings.stream()
-                .filter(p -> p.getAsset().equals("BTC"))
-                .findFirst()
-                .orElse(null);
+        for (String asset : syncAssets) {
+            BigDecimal actualBalance = walletService.getBalance(username, asset);
+            
+            PortfolioEntity holding = holdings.stream()
+                    .filter(p -> p.getAsset().equalsIgnoreCase(asset))
+                    .findFirst()
+                    .orElse(null);
 
-        if (btcHolding == null && actualBtc.compareTo(BigDecimal.ZERO) > 0) {
-            // Auto-create portfolio record for existing BTC
-            btcHolding = new PortfolioEntity();
-            btcHolding.setId(UUID.randomUUID().toString());
-            btcHolding.setUsername(username);
-            btcHolding.setAsset("BTC");
-            btcHolding.setQuantity(actualBtc);
-            btcHolding.setAvgPrice(BigDecimal.ZERO); // We don't know the cost of gifted BTC
-            repo.save(btcHolding);
-            holdings.add(btcHolding);
-        } else if (btcHolding != null && btcHolding.getQuantity().compareTo(actualBtc) != 0) {
-            // Update quantity to match wallet
-            btcHolding.setQuantity(actualBtc);
-            repo.save(btcHolding);
+            if (holding == null && actualBalance.compareTo(BigDecimal.ZERO) > 0) {
+                PortfolioEntity newP = new PortfolioEntity();
+                newP.setId(UUID.randomUUID().toString());
+                newP.setUsername(username);
+                newP.setAsset(asset);
+                newP.setQuantity(actualBalance);
+                newP.setAvgPrice(BigDecimal.ZERO); 
+                repo.save(newP);
+                holdings.add(newP);
+            } else if (holding != null && holding.getQuantity().compareTo(actualBalance) != 0) {
+                holding.setQuantity(actualBalance);
+                repo.save(holding);
+            }
         }
 
         return holdings;

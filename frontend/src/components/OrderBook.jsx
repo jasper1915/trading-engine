@@ -24,7 +24,7 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
       } else {
           // 🚀 LIVE SYNC: Fetch real market price from our backend proxy
           try {
-              const liveRes = await api.get(`/market/price?symbol=${symbol}`)
+              const liveRes = await api.get(`/api/market/price?symbol=${symbol}`)
               if (liveRes.data && liveRes.data.price > 0) {
                   setLastPrice(liveRes.data.price)
               } else {

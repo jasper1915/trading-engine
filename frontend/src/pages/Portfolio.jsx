@@ -33,8 +33,29 @@ const Portfolio = () => {
   }, [])
 
   // Helper to get last price for a specific asset
+  const [livePrices, setLivePrices] = useState({})
+
+  const fetchLivePrices = async () => {
+    const prices = {}
+    for (const h of holdings) {
+        try {
+            const res = await api.get(`/api/market/price?symbol=${h.asset}`)
+            if (res.data && res.data.price > 0) {
+                prices[h.asset] = res.data.price
+            }
+        } catch (e) { console.error('Live price fetch failed for', h.asset) }
+    }
+    setLivePrices(prev => ({ ...prev, ...prices }))
+  }
+
+  useEffect(() => {
+    if (holdings.length > 0) {
+        fetchLivePrices()
+    }
+  }, [holdings.length])
+
   const getLastPrice = (symbol) => {
-    // 🔥 FIXED: Use the new symbol field for accurate filtering
+    if (livePrices[symbol]) return livePrices[symbol]
     const assetTrades = allTrades.filter(t => t.symbol === symbol)
     if (assetTrades.length > 0) {
       return assetTrades[assetTrades.length - 1].price
@@ -43,90 +64,88 @@ const Portfolio = () => {
     return holding ? holding.avgPrice : 0
   }
 
-  const totalValue = holdings.reduce((sum, h) => {
+  const USD_INR_RATE = 83.0; // Standard conversion rate for estimation
+
+  const totalValueUSD = holdings.reduce((sum, h) => {
       const price = getLastPrice(h.asset)
-      return sum + (h.quantity * price)
+      const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
+      const valueInBase = h.quantity * price
+      // If it's a stock (INR), convert to USD for the total summary
+      return sum + (isCrypto ? valueInBase : (valueInBase / USD_INR_RATE))
   }, 0)
 
-  const totalPnL = holdings.reduce((sum, h) => {
+  const totalPnLUSD = holdings.reduce((sum, h) => {
       const price = getLastPrice(h.asset)
       if (h.avgPrice > 0) {
-          return sum + ((price - h.avgPrice) * h.quantity)
+          const pnl = (price - h.avgPrice) * h.quantity
+          const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
+          return sum + (isCrypto ? pnl : (pnl / USD_INR_RATE))
       }
       return sum
+  }, 0)
+
+  const totalInvestedUSD = holdings.reduce((sum, h) => {
+      const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(h.asset.toUpperCase())
+      const invested = h.quantity * h.avgPrice
+      return sum + (isCrypto ? invested : (invested / USD_INR_RATE))
   }, 0)
 
   return (
     <div className="portfolio-container" style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
       <style>
         {`
+          :root {
+            --groww-green: #00d09c;
+            --groww-red: #eb5b3c;
+          }
           .portfolio-container { padding: 40px; }
-          .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+          .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+          .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; position: relative; overflow: hidden; }
           
           @media (max-width: 768px) {
             .portfolio-container { padding: 16px !important; }
             .stats-grid { grid-template-columns: 1fr !important; gap: 16px; }
-            .hide-mobile { display: none !important; }
-            
-            /* Responsive Tables */
-            table thead { display: none; }
-            table td { 
-              display: flex; 
-              justify-content: space-between; 
-              padding: 12px 16px !important;
-              border: none !important;
-            }
-            table td::before {
-              content: attr(data-label);
-              font-weight: 600;
-              color: var(--text-secondary);
-              font-size: 0.8rem;
-            }
-            table tr {
-              display: block;
-              border-bottom: 1px solid var(--border-color);
-              padding: 8px 0;
-            }
           }
         `}
       </style>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '8px' }}>Portfolio</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>Track your assets and performance</p>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '8px' }}>Dashboard</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>Your investment summary</p>
       </div>
 
       <div className="stats-grid">
-        <div className="glass" style={{ padding: '24px', borderRadius: '16px' }}>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '8px' }}>Estimated Balance</p>
+        <div className="stat-card">
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Invested Value</p>
           <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>
-            ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div style={{ 
-            color: totalPnL >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '4px', 
-            fontSize: '0.9rem', 
-            marginTop: '8px' 
-          }}>
-            {totalPnL >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-            {totalPnL >= 0 ? '+' : ''}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            ${totalInvestedUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
 
-        <div className="glass" style={{ padding: '24px', borderRadius: '16px', gridColumn: 'span 2' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '8px' }}>Asset Distribution</p>
-              <AssetChart holdings={holdings} currentPrice={getLastPrice('BTC')} />
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '8px' }}>Market Sentiment</p>
-              <div style={{ padding: '8px 16px', borderRadius: '20px', background: 'rgba(34, 197, 94, 0.1)', color: 'var(--brand-success)', fontSize: '0.8rem', fontWeight: 600 }}>
-                BULLISH
-              </div>
-            </div>
+        <div className="stat-card">
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Value</p>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#fff' }}>
+            ${totalValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
+          <div style={{ 
+            color: totalPnLUSD >= 0 ? 'var(--groww-green)' : 'var(--groww-red)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '4px', 
+            fontSize: '0.95rem', 
+            fontWeight: 700,
+            marginTop: '12px' 
+          }}>
+            {totalPnLUSD >= 0 ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
+            {totalPnLUSD >= 0 ? '+' : ''}${Math.abs(totalPnLUSD).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            <span style={{ fontSize: '0.8rem', opacity: 0.8, marginLeft: '4px' }}>
+              ({((totalPnLUSD / (totalInvestedUSD || 1)) * 100).toFixed(2)}%)
+            </span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Portfolio Mix</p>
+          <AssetChart holdings={holdings} prices={livePrices} />
         </div>
       </div>
 
@@ -142,7 +161,7 @@ const Portfolio = () => {
             </tr>
           </thead>
           <tbody>
-            {holdings.length > 0 ? holdings.map((h, i) => {
+            {holdings.length > 0 ? holdings.filter(h => h.quantity > 0).map((h, i) => {
               const price = getLastPrice(h.asset)
               const pnl = h.avgPrice > 0 ? (price - h.avgPrice) * h.quantity : 0;
               const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA'].includes(h.asset.toUpperCase())
@@ -156,22 +175,22 @@ const Portfolio = () => {
                   </div>
                   <span style={{ fontWeight: 600 }}>{h.asset}</span>
                 </td>
-                <td data-label="Balance" style={{ padding: '20px 24px' }}>{h.quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</td>
+                <td data-label="Balance" style={{ padding: '20px 24px' }}>{h.quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
                 <td data-label="Avg Price" style={{ padding: '20px 24px' }}>
-                  {h.avgPrice > 0 ? `${sym}${h.avgPrice.toLocaleString()}` : 'N/A (Gifted)'}
+                  {h.avgPrice > 0 ? `${sym}${h.avgPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : 'Gifted'}
                 </td>
-                <td data-label="Current Price" style={{ padding: '20px 24px' }}>{sym}{price.toLocaleString()}</td>
+                <td data-label="Current Price" style={{ padding: '20px 24px' }}>{sym}{price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                 <td data-label="PnL" style={{ 
                    padding: '20px 24px', 
                    color: pnl >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)' 
                  }}>
-                  {pnl >= 0 ? '+' : ''}{sym}{pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {pnl >= 0 ? '+' : ''}{sym}{pnl.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </td>
               </tr>
             )}) : (
               <tr>
                 <td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                  No assets found in your portfolio
+                  No assets found
                 </td>
               </tr>
             )}
@@ -180,7 +199,7 @@ const Portfolio = () => {
       </div>
       
       <div style={{ marginTop: '40px', marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>Trade History Performance</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>Trade History</h2>
       </div>
 
       <div className="glass" style={{ borderRadius: '16px', overflow: 'hidden' }}>
@@ -199,12 +218,15 @@ const Portfolio = () => {
             {[...trades].reverse().map((t, i) => {
               const isBuyer = t.buyerUsername.toLowerCase() === userEmail.toLowerCase();
               const symbol = t.symbol || 'BTC'; 
-              const marketPrice = getLastPrice(symbol);
+              const isCrypto = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'].includes(symbol.toUpperCase());
+              const sym = isCrypto ? '$' : '₹';
+              
+              const currentPrice = getLastPrice(symbol);
               const holding = holdings.find(h => h.asset === symbol);
               const avgBuyPrice = holding ? holding.avgPrice : 0;
 
               const tradePnL = isBuyer 
-                ? (marketPrice - t.price) * t.quantity 
+                ? (currentPrice - t.price) * t.quantity 
                 : (t.price - avgBuyPrice) * t.quantity;
 
               return (
@@ -230,27 +252,20 @@ const Portfolio = () => {
                     {isBuyer ? 'BUY' : 'SELL'}
                   </span>
                 </td>
-                <td data-label="Price" style={{ padding: '20px 24px', fontWeight: 600 }}>${t.price.toLocaleString()}</td>
+                <td data-label="Price" style={{ padding: '20px 24px', fontWeight: 600 }}>{sym}{t.price.toLocaleString()}</td>
                 <td data-label="Qty" style={{ padding: '20px 24px' }}>{t.quantity}</td>
                 <td data-label="PnL" style={{ 
                   padding: '20px 24px', 
                   fontWeight: 700,
                   color: tradePnL >= 0 ? 'var(--brand-success)' : 'var(--brand-danger)'
                 }}>
-                  {tradePnL >= 0 ? '+' : ''}${tradePnL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {tradePnL >= 0 ? '+' : ''}{sym}{tradePnL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   <div style={{ fontSize: '0.65rem', fontWeight: 400, opacity: 0.6 }}>
                     {isBuyer ? 'Unrealized' : 'Realized Profit'}
                   </div>
                 </td>
               </tr>
             )})}
-            {trades.length === 0 && (
-              <tr>
-                <td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                  No trades executed yet
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>

@@ -2,6 +2,7 @@ package com.trading.engine.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.*;
 import java.util.Map;
 import java.util.List;
 
@@ -19,16 +20,24 @@ public class MarketDataService {
             } 
             
             // 2. It's a Stock - Fetch from Yahoo Finance (NSE)
-            // We append .NS for Indian stocks
             String yahooUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol.toUpperCase() + ".NS?interval=1m&range=1d";
-            Map<String, Object> response = restTemplate.getForObject(yahooUrl, Map.class);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(yahooUrl, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> response = responseEntity.getBody();
             
             if (response != null && response.containsKey("chart")) {
                 Map<String, Object> chart = (Map<String, Object>) response.get("chart");
                 List<Map<String, Object>> result = (List<Map<String, Object>>) chart.get("result");
                 if (result != null && !result.isEmpty()) {
                     Map<String, Object> meta = (Map<String, Object>) result.get(0).get("meta");
-                    return (Double) meta.get("regularMarketPrice");
+                    Object priceObj = meta.get("regularMarketPrice");
+                    if (priceObj instanceof Number) {
+                        return ((Number) priceObj).doubleValue();
+                    }
                 }
             }
         } catch (Exception e) {
