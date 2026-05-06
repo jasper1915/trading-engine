@@ -26,8 +26,17 @@ public class MarketDataService {
             // 1. Check if it's Crypto
             if (isCrypto(symbol)) {
                 String url = "https://api.binance.com/api/v3/ticker/price?symbol=" + symbol.toUpperCase() + "USDT";
-                Map<String, String> response = restTemplate.getForObject(url, Map.class);
-                return response != null ? Double.parseDouble(response.get("price")) : null;
+                
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+
+                ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+                Map<String, Object> response = responseEntity.getBody();
+                
+                if (response != null && response.containsKey("price")) {
+                    return Double.parseDouble(response.get("price").toString());
+                }
             } 
             
             // 2. It's a Stock - Fetch from Yahoo Finance (NSE)

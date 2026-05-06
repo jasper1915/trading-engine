@@ -30,6 +30,7 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
               } else {
                   // Final Fallback: Smart Mock
                   const mockPrices = {
+                    'BTC': 65000.50, 'ETH': 3500.20, 'SOL': 145.80, 'XRP': 1.41, 'BNB': 580.00, 'ADA': 0.45,
                     'RELIANCE': 2985.15, 'TCS': 3912.20, 'ZOMATO': 192.30, 'HDFCBANK': 1524.00,
                     'TATAMOTORS': 985.40, 'INFY': 1488.00, 'ADANIENT': 3145.20, 'HINDUNILVR': 2324.00,
                     'ICICIBANK': 1085.00, 'ITC': 425.00, 'BAJFINANCE': 6850.00, 'SUZLON': 54.90,
