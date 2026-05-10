@@ -98,8 +98,8 @@ const Dashboard = () => {
   const handleClaimCoins = async () => {
     setIsClaiming(true)
     try {
-      const response = await api.post('/wallet/claim-test-coins')
-      showNotification('Gift Claimed! Balances set to $1,000,000 and 1,000 units each. 🎁', 'success')
+      const response = await api.post(`/wallet/claim-test-coins?symbol=${selectedSymbol}`)
+      showNotification(`Gift Claimed! $1,000,000 and 1,000 ${selectedSymbol} credited. 🎁`, 'success')
       fetchBalances()
     } catch (err) {
       console.error('Gift claim failed:', err)

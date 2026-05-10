@@ -51,38 +51,31 @@ public class WalletController {
 
     // ✅ Claim 1,000 Test Units for all top assets
     @PostMapping("/claim-test-coins")
-    public String claimTestCoins(Principal principal) {
+    public String claimTestCoins(@RequestParam(required = false) String symbol, Principal principal) {
         if (principal == null) {
             throw new RuntimeException("User not authenticated");
         }
         String username = principal.getName();
-        System.out.println("🎁 [WalletController] Reset request for user: " + username);
+        System.out.println("🎁 [WalletController] Targeted credit request for: " + symbol + " (User: " + username + ")");
 
-        // Core assets to ensure speed and stability
-        String[] assets = {
-            "RELIANCE", "TCS", "ZOMATO", "HDFCBANK", "TATAMOTORS", 
-            "INFY", "ADANIENT", "BTC", "ETH", "SOL", "HINDUNILVR", 
-            "BAJFINANCE", "ICICIBANK", "ITC", "SBIN", "BHARTIARTL", 
-            "LICI", "KOTAKBANK", "LT", "HCLTECH", "AXISBANK", 
-            "ASIANPAINT", "MARUTI", "SUNPHARMA", "TITAN", 
-            "ULTRACEMCO", "WIPRO", "M&M", "JSWSTEEL", "POWERGRID", 
-            "NTPC", "ONGC", "BNB", "XRP"
-        };
-        
         try {
-            System.out.println("DEBUG: [WalletController] Setting $1,000,000 USD...");
+            // 1. Always credit cash (USD and INR)
             walletService.setGiftBalances(username, "USD");
+            walletService.setGiftBalances(username, "INR");
 
-            for (String asset : assets) {
-                walletService.setGiftBalances(username, asset);
+            // 2. Only credit the specific asset if provided
+            if (symbol != null && !symbol.isEmpty()) {
+                // Ensure we don't double-credit if symbol is USD or INR
+                if (!symbol.equalsIgnoreCase("USD") && !symbol.equalsIgnoreCase("INR")) {
+                    walletService.setGiftBalances(username, symbol.toUpperCase());
+                }
+                return "Successfully credited $1,000,000 USD/INR and 1,000 " + symbol.toUpperCase() + "!";
             }
             
-            System.out.println("✅ [WalletController] Reset successful for " + username);
-            return "Balances reset to $1,000,000 USD and 1,000 units of each asset successfully!";
+            return "Successfully credited $1,000,000 USD/INR!";
         } catch (Exception e) {
-            System.err.println("❌ [WalletController] Reset failed: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Failed to reset balances: " + e.getMessage());
+            System.err.println("❌ [WalletController] Targeted credit failed: " + e.getMessage());
+            throw new RuntimeException("Failed to credit balance: " + e.getMessage());
         }
     }
 }

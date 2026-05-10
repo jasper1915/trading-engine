@@ -52,6 +52,17 @@ public class WalletService {
         return wallet.getBalance();
     }
 
+    public BigDecimal getLockedBalance(String username, String currency) {
+        WalletEntity wallet = getOrCreateWallet(username, currency);
+        BigDecimal locked = wallet.getLocked();
+        if (locked.compareTo(BigDecimal.ZERO) < 0) {
+            wallet.setLocked(BigDecimal.ZERO);
+            walletRepository.save(wallet);
+            return BigDecimal.ZERO;
+        }
+        return locked;
+    }
+
     // 🔒 Lock funds
     public void lockFunds(String username, BigDecimal amount, String currency) {
         WalletEntity wallet = getOrCreateWallet(username, currency);
@@ -95,9 +106,9 @@ public class WalletService {
     public void setGiftBalances(String username, String currency) {
         WalletEntity wallet = getOrCreateWallet(username, currency);
         if ("USD".equalsIgnoreCase(currency) || "INR".equalsIgnoreCase(currency)) {
-            wallet.setBalance(new BigDecimal("1000000"));
+            wallet.setBalance(wallet.getBalance().add(new BigDecimal("1000000")));
         } else {
-            wallet.setBalance(new BigDecimal("1000"));
+            wallet.setBalance(wallet.getBalance().add(new BigDecimal("1000")));
         }
         walletRepository.save(wallet);
     }
