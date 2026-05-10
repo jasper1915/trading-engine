@@ -5,6 +5,10 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
   const [data, setData] = useState({ bids: {}, asks: {} })
   const [lastPrice, setLastPrice] = useState(0)
 
+  useEffect(() => {
+    setLastPrice(0); // ⚡ RESET: Clear old price immediately when symbol changes
+  }, [symbol])
+
   const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
   const isCrypto = cryptoSymbols.includes(symbol.toUpperCase())
   const currency = isCrypto ? 'USD' : 'INR'

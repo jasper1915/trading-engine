@@ -14,8 +14,9 @@ const TradingChart = ({ symbol = 'BTC' }) => {
   } else if (symbol.includes(':')) {
     tvSymbol = symbol.toUpperCase();
   } else {
-    const nseTicker = rawSymbol === 'M&M' ? 'M_M' : rawSymbol;
-    tvSymbol = `NSE:${nseTicker}`;
+    const ticker = rawSymbol === 'M&M' ? 'M_M' : rawSymbol;
+    // BSE is often less restricted than NSE for free widgets
+    tvSymbol = `BSE:${ticker}`;
   }
 
   useEffect(() => {
