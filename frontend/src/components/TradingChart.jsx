@@ -20,10 +20,19 @@ const TradingChart = ({ symbol = 'BTC' }) => {
   }
 
   useEffect(() => {
-    // Clear previous chart
-    if (container.current) {
-      container.current.innerHTML = '';
+    const currentContainer = container.current;
+    
+    // Clear previous widget
+    if (currentContainer) {
+      currentContainer.innerHTML = '';
     }
+
+    // Create a wrapper for the widget
+    const widgetContainer = document.createElement('div');
+    widgetContainer.id = "tv_chart_container";
+    widgetContainer.style.height = "100%";
+    widgetContainer.style.width = "100%";
+    currentContainer.appendChild(widgetContainer);
 
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-realtime.js";
@@ -38,22 +47,21 @@ const TradingChart = ({ symbol = 'BTC' }) => {
       "style": "1",
       "locale": "en",
       "enable_publishing": false,
-      "hide_top_toolbar": false,
       "allow_symbol_change": true,
-      "container_id": "tradingview_widget_container",
+      "calendar": false,
       "support_host": "https://www.tradingview.com"
     });
 
-    container.current.appendChild(script);
+    currentContainer.appendChild(script);
   }, [tvSymbol]);
 
   return (
     <div 
       className="tradingview-widget-container glass" 
       ref={container} 
-      style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden' }}
+      style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden', position: 'relative' }}
     >
-      <div id="tradingview_widget_container" style={{ height: "100%", width: "100%" }}></div>
+      {/* The script will inject the chart here */}
     </div>
   );
 }
