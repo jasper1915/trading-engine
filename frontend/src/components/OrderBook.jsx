@@ -26,11 +26,21 @@ const OrderBook = ({ symbol = 'BTC', name = 'Bitcoin' }) => {
       if (symbolTrades.length > 0) {
           setLastPrice(symbolTrades[symbolTrades.length - 1].price)
       } else {
-          // 🚀 LIVE SYNC: Fetch real market price from our backend proxy
+          // 🚀 LIVE SYNC
           try {
-              const liveRes = await api.get(`/api/market/price?symbol=${symbol}`)
-              if (liveRes.data && liveRes.data.price > 0) {
-                  setLastPrice(liveRes.data.price)
+              if (isCrypto) {
+                // Fetch directly from Binance for perfect chart parity
+                const binanceRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}USDT`);
+                const binanceData = await binanceRes.json();
+                if (binanceData.price) {
+                  setLastPrice(parseFloat(binanceData.price));
+                }
+              } else {
+                // Fetch from our backend proxy for Stocks (BSE/NSE)
+                const liveRes = await api.get(`/api/market/price?symbol=${symbol}`)
+                if (liveRes.data && liveRes.data.price > 0) {
+                    setLastPrice(liveRes.data.price)
+                }
               }
           } catch (err) {
               console.warn('Market sync failed for', symbol)
