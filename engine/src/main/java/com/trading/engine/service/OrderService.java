@@ -190,18 +190,28 @@ public class OrderService {
         }
 
         // ===========================
-        // 🔄 UNUSED FUND RELEASE (Only for Market Orders or Completed Orders)
+        // 🔄 UNUSED FUND RELEASE (Price Improvement Refund)
         // ===========================
-        if ("BUY".equalsIgnoreCase(order.getType()) && "MARKET".equalsIgnoreCase(order.getOrderType())) {
-            BigDecimal totalLocked = priceToLock.multiply(BigDecimal.valueOf(order.getOriginalQuantity()));
-            BigDecimal totalUsed = BigDecimal.ZERO;
+        if ("BUY".equalsIgnoreCase(order.getType())) {
+            // How much we locked originally vs how much we actually spent
+            BigDecimal totalLockedForFilledQty = priceToLock.multiply(BigDecimal.valueOf(order.getOriginalQuantity() - order.getQuantity()));
+            BigDecimal totalSpent = BigDecimal.ZERO;
             for (Trade trade : newTrades) {
-                totalUsed = totalUsed.add(trade.getPrice().multiply(BigDecimal.valueOf(trade.getQuantity())));
+                totalSpent = totalSpent.add(trade.getPrice().multiply(BigDecimal.valueOf(trade.getQuantity())));
             }
-            BigDecimal unused = totalLocked.subtract(totalUsed);
-            if (unused.compareTo(BigDecimal.ZERO) > 0) {
-                System.out.println("DEBUG: [OrderService] Releasing unused market funds: " + unused);
-                walletService.releaseFunds(username, unused, order.getCurrency());
+            
+            // If we spent less than what we locked for the executed portion, refund the difference
+            BigDecimal refund = totalLockedForFilledQty.subtract(totalSpent);
+            
+            // Also, if the order is fully FILLED or CANCELLED, release everything else
+            if ("FILLED".equalsIgnoreCase(order.getStatus()) || "CANCELLED".equalsIgnoreCase(order.getStatus())) {
+                BigDecimal remainingLock = priceToLock.multiply(BigDecimal.valueOf(order.getQuantity()));
+                refund = refund.add(remainingLock);
+            }
+
+            if (refund.compareTo(BigDecimal.ZERO) > 0) {
+                System.out.println("DEBUG: [OrderService] Refunding unused funds (Price Improvement): " + refund);
+                walletService.releaseFunds(username, refund, order.getCurrency());
             }
         }
 
