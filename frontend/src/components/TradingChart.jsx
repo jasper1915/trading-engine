@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, memo } from 'react'
 
 const TradingChart = ({ symbol = 'BTC' }) => {
-  // Map internal symbols to TradingView symbols
-  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA']
-  const cleanSymbol = symbol.toUpperCase().split(':')[0];
-  const isCrypto = cryptoSymbols.includes(cleanSymbol);
+  // 1. Clean the symbol (Handle formats like "TITAN/INR" or "BTC:USDT")
+  const rawSymbol = symbol.toUpperCase().split('/')[0].split(':')[0].trim();
   
-  // 🔥 AUTO-RESOLVE: Let TradingView find the best source for Stocks
-  let tvSymbol = isCrypto ? `BINANCE:${cleanSymbol}USDT` : `${cleanSymbol}`
+  // 2. Identify if it's an Indian Stock or Crypto
+  const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA', 'TRX', 'MATIC'];
+  const isCrypto = cryptoSymbols.includes(rawSymbol);
   
-  if (symbol.includes(':')) {
-    tvSymbol = symbol.toUpperCase();
+  // 3. Resolve the exact TradingView ticker
+  let tvSymbol;
+  if (isCrypto) {
+    tvSymbol = `BINANCE:${rawSymbol}USDT`;
+  } else if (symbol.includes(':')) {
+    tvSymbol = symbol.toUpperCase(); // Respect explicit symbols
+  } else {
+    // Indian Stocks: Use NSE prefix and handle special tickers
+    const nseTicker = rawSymbol === 'M&M' ? 'M_M' : rawSymbol;
+    tvSymbol = `NSE:${nseTicker}`;
   }
 
   // Construct the Iframe URL
