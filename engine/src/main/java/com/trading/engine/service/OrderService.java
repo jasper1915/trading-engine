@@ -32,11 +32,11 @@ public class OrderService {
     private final PortfolioService portfolioService;
 
     public OrderService(MatchingEngine engine,
-                        WalletService walletService,
-                        OrderRepository orderRepository,
-                        TradeRepository tradeRepository,
-                        EventPublisher eventPublisher,
-                        PortfolioService portfolioService) {
+            WalletService walletService,
+            OrderRepository orderRepository,
+            TradeRepository tradeRepository,
+            EventPublisher eventPublisher,
+            PortfolioService portfolioService) {
         this.engine = engine;
         this.walletService = walletService;
         this.orderRepository = orderRepository;
@@ -64,7 +64,7 @@ public class OrderService {
             order.setTimestamp(entity.getTimestamp());
             order.setCurrency(entity.getCurrency());
             order.setUsername(entity.getUsername());
-            
+
             // Re-process without triggering new wallet locks or duplicate trades
             engine.restoreOrder(order);
             count++;
@@ -90,10 +90,11 @@ public class OrderService {
         // ===========================
         if ("BUY".equalsIgnoreCase(order.getType())) {
             BigDecimal priceToLock = order.getPrice();
-            
+
             // If MARKET order, we need to estimate the price based on the best ASK
             if ("MARKET".equalsIgnoreCase(order.getOrderType())) {
-                Map<String, Map<String, Integer>> book = engine.getOrderBookBySymbol(order.getSymbol(), order.getCurrency());
+                Map<String, Map<String, Integer>> book = engine.getOrderBookBySymbol(order.getSymbol(),
+                        order.getCurrency());
                 Map<String, Integer> asks = book.get("asks");
                 if (asks == null || asks.isEmpty()) {
                     throw new RuntimeException("Cannot place Market Buy: No sellers available");
@@ -108,8 +109,10 @@ public class OrderService {
             BigDecimal balance = walletService.getBalance(username, order.getCurrency());
 
             if (balance.compareTo(totalCost) < 0) {
-                System.out.println("DEBUG: [OrderService] Insufficient balance! Has: " + balance + ", Needs: " + totalCost);
-                throw new RuntimeException("Insufficient balance. You need $" + totalCost + " but only have $" + balance);
+                System.out.println(
+                        "DEBUG: [OrderService] Insufficient balance! Has: " + balance + ", Needs: " + totalCost);
+                throw new RuntimeException(
+                        "Insufficient balance. You need $" + totalCost + " but only have $" + balance);
             }
             walletService.lockFunds(username, totalCost, order.getCurrency());
         }
@@ -143,7 +146,8 @@ public class OrderService {
             walletService.deductLocked(buyer, cost, buyOrder.getCurrency());
             walletService.credit(buyer, BigDecimal.valueOf(trade.getQuantity()), buyOrder.getSymbol());
 
-            portfolioService.updateAfterBuy(buyer, buyOrder.getSymbol(), BigDecimal.valueOf(trade.getQuantity()), trade.getPrice());
+            portfolioService.updateAfterBuy(buyer, buyOrder.getSymbol(), BigDecimal.valueOf(trade.getQuantity()),
+                    trade.getPrice());
 
             walletService.credit(seller, cost, sellOrder.getCurrency());
             walletService.deductLocked(seller, BigDecimal.valueOf(trade.getQuantity()), sellOrder.getSymbol());
@@ -165,7 +169,8 @@ public class OrderService {
         // 📊 EVENT PUBLISHING (SAFE)
         // ===========================
         try {
-            Map<String, Map<String, Integer>> orderBook = engine.getOrderBookBySymbol(order.getSymbol(), order.getCurrency());
+            Map<String, Map<String, Integer>> orderBook = engine.getOrderBookBySymbol(order.getSymbol(),
+                    order.getCurrency());
             OrderBookEvent obEvent = new OrderBookEvent();
             obEvent.setSymbol(order.getSymbol());
             obEvent.setCurrency(order.getCurrency());
@@ -230,11 +235,13 @@ public class OrderService {
         List<Order> active = new ArrayList<>();
         // Filter buy orders
         for (Order o : engine.getBuyOrders()) {
-            if (o.getUsername().equals(username)) active.add(o);
+            if (o.getUsername().equals(username))
+                active.add(o);
         }
         // Filter sell orders
         for (Order o : engine.getSellOrders()) {
-            if (o.getUsername().equals(username)) active.add(o);
+            if (o.getUsername().equals(username))
+                active.add(o);
         }
         return active;
     }
@@ -274,7 +281,8 @@ public class OrderService {
         Order order = engine.getOrderById(id);
         String username = order.getUsername();
         boolean result = engine.cancelOrder(id);
-        if (!result) return false;
+        if (!result)
+            return false;
 
         // 💾 UPDATE DB
         saveOrderToDb(order);
@@ -292,7 +300,8 @@ public class OrderService {
         if ("LIMIT".equalsIgnoreCase(order.getOrderType()) && order.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Invalid price for Limit Order");
         }
-        if (order.getQuantity() <= 0) throw new RuntimeException("Invalid quantity");
+        if (order.getQuantity() <= 0)
+            throw new RuntimeException("Invalid quantity");
     }
 
     private String getLoggedInUser() {

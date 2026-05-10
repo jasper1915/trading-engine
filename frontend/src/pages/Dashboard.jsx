@@ -99,7 +99,7 @@ const Dashboard = () => {
     setIsClaiming(true)
     try {
       const response = await api.post('/wallet/claim-test-coins')
-      showNotification('Gift Reset! Balances set to $1,000,000 and 1,000 units each. 🎁', 'success')
+      showNotification('Gift Claimed! Balances set to $1,000,000 and 1,000 units each. 🎁', 'success')
       fetchBalances()
     } catch (err) {
       console.error('Gift claim failed:', err)
@@ -346,7 +346,7 @@ const Dashboard = () => {
                   cursor: 'pointer'
                 }}
               >
-                <Gift size={14} /> {isClaiming ? '...' : 'Gift Reset'}
+                <Gift size={14} /> {isClaiming ? '...' : 'Gift'}
               </button>
               <button onClick={handleManualDeposit} style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
                 + $10k
