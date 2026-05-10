@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, memo } from 'react'
 
 const TradingChart = ({ symbol = 'BTC' }) => {
-  const container = useRef();
+  const containerId = "tradingview_chart_widget";
 
   // 1. Resolve Ticker Logic
   const rawSymbol = symbol.toUpperCase().split('/')[0].split(':')[0].trim();
@@ -15,53 +15,44 @@ const TradingChart = ({ symbol = 'BTC' }) => {
     tvSymbol = symbol.toUpperCase();
   } else {
     const nseTicker = rawSymbol === 'M&M' ? 'M_M' : rawSymbol;
-    // We try NSE first, but use a more robust search
     tvSymbol = `NSE:${nseTicker}`;
   }
 
   useEffect(() => {
-    const currentContainer = container.current;
-    
-    // Clear previous widget
-    if (currentContainer) {
-      currentContainer.innerHTML = '';
-    }
-
-    // Create a wrapper for the widget
-    const widgetContainer = document.createElement('div');
-    widgetContainer.id = "tv_chart_container";
-    widgetContainer.style.height = "100%";
-    widgetContainer.style.width = "100%";
-    currentContainer.appendChild(widgetContainer);
-
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-realtime.js";
-    script.type = "text/javascript";
+    const script = document.createElement('script');
+    script.id = 'tradingview-widget-loading-script';
+    script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
-    script.innerHTML = JSON.stringify({
-      "autosize": true,
-      "symbol": tvSymbol,
-      "interval": "D",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "calendar": false,
-      "support_host": "https://www.tradingview.com"
-    });
-
-    currentContainer.appendChild(script);
+    script.onload = () => {
+      if (window.TradingView) {
+        new window.TradingView.widget({
+          "autosize": true,
+          "symbol": tvSymbol,
+          "interval": "D",
+          "timezone": "Etc/UTC",
+          "theme": "dark",
+          "style": "1",
+          "locale": "en",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "hide_side_toolbar": false,
+          "allow_symbol_change": true,
+          "container_id": containerId
+        });
+      }
+    };
+    
+    // If already loaded, just initialize
+    if (window.TradingView) {
+      script.onload();
+    } else {
+      document.head.appendChild(script);
+    }
   }, [tvSymbol]);
 
   return (
-    <div 
-      className="tradingview-widget-container glass" 
-      ref={container} 
-      style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden', position: 'relative' }}
-    >
-      {/* The script will inject the chart here */}
+    <div className="tradingview-widget-container glass" style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden' }}>
+      <div id={containerId} style={{ height: "100%", width: "100%" }} />
     </div>
   );
 }
