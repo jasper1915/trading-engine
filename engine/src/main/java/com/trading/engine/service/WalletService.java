@@ -27,7 +27,7 @@ public class WalletService {
                     if ("USD".equalsIgnoreCase(currency) || "INR".equalsIgnoreCase(currency)) {
                         newWallet.setBalance(new BigDecimal("1000000"));
                     } else {
-                        newWallet.setBalance(new BigDecimal("1000"));
+                        newWallet.setBalance(BigDecimal.ZERO);
                     }
                     
                     newWallet.setLocked(BigDecimal.ZERO);
@@ -49,17 +49,6 @@ public class WalletService {
     // ✅ Get balance
     public BigDecimal getBalance(String username, String currency) {
         WalletEntity wallet = getOrCreateWallet(username, currency);
-        
-        // 🎁 Welcome Bonus: Gift 1,000,000 USD/INR if balance is <= 0
-        if (wallet.getBalance() == null || wallet.getBalance().compareTo(BigDecimal.ZERO) <= 0) {
-            if ("USD".equalsIgnoreCase(currency) || "INR".equalsIgnoreCase(currency)) {
-                wallet.setBalance(new BigDecimal("1000000"));
-            } else {
-                wallet.setBalance(new BigDecimal("1000"));
-            }
-            walletRepository.save(wallet);
-        }
-        
         return wallet.getBalance();
     }
 
