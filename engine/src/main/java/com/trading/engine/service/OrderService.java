@@ -85,12 +85,12 @@ public class OrderService {
         System.out.println("DEBUG: [OrderService] Validating order...");
         validate(order);
 
+        BigDecimal priceToLock = order.getPrice();
+
         // ===========================
         // 🔥 WALLET LOCKING
         // ===========================
         if ("BUY".equalsIgnoreCase(order.getType())) {
-            BigDecimal priceToLock = order.getPrice();
-
             // If MARKET order, we need to estimate the price based on the best ASK
             if ("MARKET".equalsIgnoreCase(order.getOrderType())) {
                 Map<String, Map<String, Integer>> book = engine.getOrderBookBySymbol(order.getSymbol(),
@@ -190,16 +190,17 @@ public class OrderService {
         }
 
         // ===========================
-        // 🔄 UNUSED FUND RELEASE (BUY)
+        // 🔄 UNUSED FUND RELEASE (Only for Market Orders or Completed Orders)
         // ===========================
-        if ("BUY".equalsIgnoreCase(order.getType())) {
-            BigDecimal locked = order.getPrice().multiply(BigDecimal.valueOf(order.getOriginalQuantity()));
-            BigDecimal used = BigDecimal.ZERO;
+        if ("BUY".equalsIgnoreCase(order.getType()) && "MARKET".equalsIgnoreCase(order.getOrderType())) {
+            BigDecimal totalLocked = priceToLock.multiply(BigDecimal.valueOf(order.getOriginalQuantity()));
+            BigDecimal totalUsed = BigDecimal.ZERO;
             for (Trade trade : newTrades) {
-                used = used.add(trade.getPrice().multiply(BigDecimal.valueOf(trade.getQuantity())));
+                totalUsed = totalUsed.add(trade.getPrice().multiply(BigDecimal.valueOf(trade.getQuantity())));
             }
-            BigDecimal unused = locked.subtract(used);
+            BigDecimal unused = totalLocked.subtract(totalUsed);
             if (unused.compareTo(BigDecimal.ZERO) > 0) {
+                System.out.println("DEBUG: [OrderService] Releasing unused market funds: " + unused);
                 walletService.releaseFunds(username, unused, order.getCurrency());
             }
         }
