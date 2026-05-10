@@ -98,9 +98,6 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    public BigDecimal getLockedBalance(String username, String currency) {
-        return getOrCreateWallet(username, currency).getLocked();
-    }
 
     // 🎁 RESET BALANCES
     public void setGiftBalances(String username, String currency) {
