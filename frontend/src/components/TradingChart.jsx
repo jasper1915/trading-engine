@@ -1,39 +1,61 @@
 import React, { useEffect, useRef, memo } from 'react'
 
 const TradingChart = ({ symbol = 'BTC' }) => {
-  // 1. Clean the symbol (Handle formats like "TITAN/INR" or "BTC:USDT")
+  const container = useRef();
+
+  // 1. Resolve Ticker Logic
   const rawSymbol = symbol.toUpperCase().split('/')[0].split(':')[0].trim();
-  
-  // 2. Identify if it's an Indian Stock or Crypto
   const cryptoSymbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'DOT', 'ADA', 'TRX', 'MATIC'];
   const isCrypto = cryptoSymbols.includes(rawSymbol);
-  
-  // 3. Resolve the exact TradingView ticker
+
   let tvSymbol;
   if (isCrypto) {
     tvSymbol = `BINANCE:${rawSymbol}USDT`;
   } else if (symbol.includes(':')) {
-    tvSymbol = symbol.toUpperCase(); // Respect explicit symbols
+    tvSymbol = symbol.toUpperCase();
   } else {
-    // Indian Stocks: Use NSE prefix and handle special tickers
     const nseTicker = rawSymbol === 'M&M' ? 'M_M' : rawSymbol;
+    // We try NSE first, but use a more robust search
     tvSymbol = `NSE:${nseTicker}`;
   }
 
-  // Construct the Iframe URL
-  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_762c9&symbol=${tvSymbol}&interval=D&hidesidetoolbar=1&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=${tvSymbol}`;
+  useEffect(() => {
+    // Clear previous chart
+    if (container.current) {
+      container.current.innerHTML = '';
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-realtime.js";
+    script.type = "text/javascript";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      "autosize": true,
+      "symbol": tvSymbol,
+      "interval": "D",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "enable_publishing": false,
+      "hide_top_toolbar": false,
+      "allow_symbol_change": true,
+      "container_id": "tradingview_widget_container",
+      "support_host": "https://www.tradingview.com"
+    });
+
+    container.current.appendChild(script);
+  }, [tvSymbol]);
 
   return (
-    <div className="tradingview-widget-container glass" style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden' }}>
-      <iframe
-        id="tradingview_762c9"
-        src={chartUrl}
-        style={{ width: "100%", height: "100%", border: 'none' }}
-        allowFullScreen
-        title="TradingView Chart"
-      />
+    <div 
+      className="tradingview-widget-container glass" 
+      ref={container} 
+      style={{ height: "550px", width: "100%", borderRadius: '16px', overflow: 'hidden' }}
+    >
+      <div id="tradingview_widget_container" style={{ height: "100%", width: "100%" }}></div>
     </div>
-  )
+  );
 }
 
 export default memo(TradingChart)

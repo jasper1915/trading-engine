@@ -23,27 +23,26 @@ public class MarketDataService {
                 return fetchFromYahoo(url);
             }
 
-            // 1. Check if it's Crypto
-            if (isCrypto(symbol)) {
+            // 1. Resolve Asset Type
+            boolean isCryptoAsset = isCrypto(symbol);
+            
+            if (isCryptoAsset) {
                 String url = "https://api.binance.com/api/v3/ticker/price?symbol=" + symbol.toUpperCase() + "USDT";
-                
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                HttpEntity<String> entity = new HttpEntity<>(headers);
-
-                ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-                Map<String, Object> response = responseEntity.getBody();
-                
-                if (response != null && response.containsKey("price")) {
-                    double cryptoPrice = Double.parseDouble(response.get("price").toString());
-                    System.out.println("✅ [MarketDataService] Crypto Price for " + symbol + ": " + cryptoPrice);
-                    return cryptoPrice;
-                }
+                Double price = fetchFromBinance(url);
+                if (price != null) return price;
             } 
             
-            // 2. It's a Stock - Fetch from Yahoo Finance (NSE)
+            // 2. Stock or Fallback - Fetch from Yahoo Finance (NSE)
             String yahooUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol.toUpperCase() + ".NS?interval=1m&range=1d";
-            return fetchFromYahoo(yahooUrl);
+            Double stockPrice = fetchFromYahoo(yahooUrl);
+            
+            // 3. Final Fallback: If Yahoo fails for a crypto-looking symbol, try Binance anyway
+            if (stockPrice == null && !isCryptoAsset && symbol.length() <= 5) {
+                String url = "https://api.binance.com/api/v3/ticker/price?symbol=" + symbol.toUpperCase() + "USDT";
+                return fetchFromBinance(url);
+            }
+
+            return stockPrice;
 
         } catch (Exception e) {
             System.err.println("Failed to fetch market price for " + symbol + ": " + e.getMessage());
@@ -88,7 +87,27 @@ public class MarketDataService {
         return null;
     }
 
+    private Double fetchFromBinance(String url) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> response = responseEntity.getBody();
+            
+            if (response != null && response.containsKey("price")) {
+                double price = Double.parseDouble(response.get("price").toString());
+                System.out.println("✅ [MarketDataService] Binance Price: " + price);
+                return price;
+            }
+        } catch (Exception e) {
+            System.err.println("Binance Fetch Error: " + e.getMessage());
+        }
+        return null;
+    }
+
     private boolean isCrypto(String symbol) {
-        return List.of("BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "DOT", "ADA").contains(symbol.toUpperCase());
+        return List.of("BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "DOT", "ADA", "MATIC", "TRX", "LTC", "AVAX").contains(symbol.toUpperCase());
     }
 }
